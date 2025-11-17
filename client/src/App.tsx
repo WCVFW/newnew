@@ -1,198 +1,133 @@
-import React, { Suspense, lazy } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 
-// Helper to ensure the loader is visible for a minimum amount of time
-const lazyWithMinTime = (
-  importFn: () => Promise<{ default: React.ComponentType<any> }>,
-  minTimeMs: number = 1000
-) => {
-  return lazy(() =>
-    Promise.all([
-      importFn(),
-      new Promise((resolve) => setTimeout(resolve, minTimeMs)),
-    ]).then(([moduleExports]) => moduleExports)
-  );
-};
-
-// Lazy load pages
-const Home = lazyWithMinTime(() => import("./pages/Home"));
-const Login = lazyWithMinTime(() => import("./pages/Login"));
-const Signup = lazyWithMinTime(() => import("./pages/Signup"));
-const Recharge = lazyWithMinTime(() => import("./pages/Recharge"));
-const Kyc = lazyWithMinTime(() => import("./pages/Kyc"));
-const Dashboard = lazyWithMinTime(() => import("./pages/Dashboard"));
-const AdminDashboard = lazyWithMinTime(() => import("./pages/AdminDashboard"));
-const EmployeeDashboard = lazyWithMinTime(
-  () => import("./pages/EmployeeDashboard")
-);
-const ForgotPassword = lazyWithMinTime(() => import("./pages/ForgotPassword"));
-// The ResetPassword page is now combined into ForgotPassword.tsx
-// const ResetPassword = lazyWithMinTime(() => import("./pages/ResetPassword"));
-
-const Profile = lazyWithMinTime(() => import("./pages/Profile"));
-
-// Placeholder for pages that are not yet created
-const ComingSoonPage = () => (
-  <div className="container text-center py-5 my-5">
-    <h1 className="display-3">Coming Soon!</h1>
-    <p className="lead text-muted">This feature is under construction and will be available shortly.</p>
-  </div>
-);
-
-// Components
+// Layout Components
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer"; // Import the new Footer component
-import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute";
-import EmployeeRoute from "./components/EmployeeRoute";
-import BroadbandPage from "./pages/Broadband";
-import CableTVPage from "./pages/CableTV";
-import GasPage from "./pages/Gas";
-import LandlinePage from "./pages/Landline";
-import ElectricityPage from "./pages/Electricity";
-import WaterPage from "./pages/Water";
+import Footer from "./components/layout/Footer"; // Assuming Footer component exists
 
-// Loader Component
-const LoaderStyles = () => (
-  <style>
-    {`
-      @keyframes wave-bounce {
-        0%, 60%, 100% { transform: translateY(0); }
-        30% { transform: translateY(-25px); }
-      }
+// Core Pages
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Contact from "./pages/Contact";
+import About from "./pages/About";
 
-      .wave-loader {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 150px;
-        height: 80px;
-      }
+// Recharge & Bills Pages
+import MobileRechargePage from "./pages/recharge/MobileRechargePage";
+import DthRechargePage from "./pages/recharge/DthRechargePage";
+import ElectricityBillPage from "./pages/recharge/ElectricityBillPage";
+import WaterBillPage from "./pages/recharge/WaterBillPage";
+import GasBillPage from "./pages/recharge/GasBillPage";
+import BroadbandPage from "./pages/recharge/BroadbandPage";
+import FastagRechargePage from "./pages/recharge/FastagRechargePage";
+import LpgBookingPage from "./pages/recharge/LpgBookingPage";
+import InsurancePaymentPage from "./pages/recharge/InsurancePaymentPage";
+import EducationFeesPage from "./pages/recharge/EducationFeesPage";
+import MunicipalTaxPage from "./pages/recharge/MunicipalTaxPage";
 
-      .wave-loader > div {
-        width: 15px;
-        height: 15px;
-        background-color: #E15D67;
-        border-radius: 50%;
-        margin: 0 5px;
-        animation: wave-bounce 1.2s infinite ease-in-out;
-      }
+// Money & Banking Pages
+import AepsPage from "./pages/money/AepsPage";
+import MicroAtmPage from "./pages/money/MicroAtmPage";
+import DmtPage from "./pages/money/DmtPage";
+import UpiCollectPage from "./pages/money/UpiCollectPage";
+import WalletToBankPage from "./pages/money/WalletToBankPage";
 
-      .wave-loader .dot1 { animation-delay: 0.0s; }
-      .wave-loader .dot2 { animation-delay: 0.1s; }
-      .wave-loader .dot3 { animation-delay: 0.2s; }
-      .wave-loader .dot4 { animation-delay: 0.3s; }
-      .wave-loader .dot5 { animation-delay: 0.4s; }
-    `}
-  </style>
-);
+// Travel Booking Pages
+import FlightBookingPage from "./pages/travel/FlightBookingPage";
+import TrainBookingPage from "./pages/travel/TrainBookingPage";
+import BusBookingPage from "./pages/travel/BusBookingPage";
+import HotelBookingPage from "./pages/travel/HotelBookingPage";
+import CabBookingPage from "./pages/travel/CabBookingPage";
 
-const PageLoader: React.FC = () => (
-  <>
-    <LoaderStyles />
-    <div
-      className="w-100 vh-100 d-flex justify-content-center align-items-center"
-      style={{ backgroundColor: "rgba(255, 255, 255, 0.9)" }}
-    >
-      <div className="wave-loader">
-        <div className="dot1"></div>
-        <div className="dot2"></div>
-        <div className="dot3"></div>
-        <div className="dot4"></div>
-        <div className="dot5"></div>
-      </div>
-    </div>
-  </>
-);
+// B2B Services Pages
+import PartnerLoginPage from "./pages/B2B/PartnerLoginPage";
+import DistributorLoginPage from "./pages/B2B/DistributorLoginPage";
+import RetailerLoginPage from "./pages/B2B/RetailerLoginPage";
+import CommissionPage from "./pages/B2B/CommissionPage";
+import ApiDocsPage from "./pages/B2B/ApiDocsPage";
+import CreateDistributorPage from "./pages/B2B/CreateDistributorPage";
+import CreateRetailerPage from "./pages/B2B/CreateRetailerPage";
+import HelpCenterPage from "./pages/support/HelpCenterPage";
+import RaiseTicketPage from "./pages/support/RaiseTicketPage";
+import ApiSupportPage from "./pages/support/ApiSupportPage";
+import ComplaintsPage from "./pages/support/ComplaintsPage"; // Assuming this page exists or will be created
+import AdminDashboard from "./pages/AdminDashboard";
+
+// Other Pages (You can create these as needed)
+// import AdminDashboard from './pages/AdminDashboard';
+// import UserDashboard from './pages/UserDashboard';
+// import Profile from './pages/Profile';
 
 const App: React.FC = () => {
-  const location = useLocation();
-  const dashboardPaths = ["/employee", "/admin"];
-  const isDashboardPage = dashboardPaths.some((path) => location.pathname.startsWith(path));
-
   return (
-    <>
-      {/* Navigation Bar */}
-      {!isDashboardPage && <Navbar />}
-
-      {/* Full Width Wrapper for All Pages */}
-      <div
-        style={{
-          paddingTop: isDashboardPage ? "0" : "80px",
-          width: "100%",
-          minHeight: "100vh",
-          overflowX: "hidden",
-        }}
-        className="full-width-page"
-      >
-        <Suspense fallback={<PageLoader />}>
+    <AuthProvider>
+        <Navbar />
+        <main>
           <Routes>
-            {/* Public Routes */}
+            {/* Core Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/recharge" element={<Recharge />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
 
-            {/* Routes for other services pointing to a placeholder page */}
-            <Route path="/card" element={<ComingSoonPage />} />
-            <Route path="/broadband" element={<BroadbandPage />} />
-            <Route path="/landline" element={<LandlinePage />} />
-            <Route path="/cabletv" element={<CableTVPage />} />
-            <Route path="/electricity" element={<ElectricityPage />} />
-            <Route path="/gas" element={<GasPage />} />
-            <Route path="/water" element={<WaterPage />} />
+            {/* Recharge & Bills Routes */}
+            <Route path="/recharge/mobile" element={<MobileRechargePage />} />
+            <Route path="/recharge/dth" element={<DthRechargePage />} />
+            <Route path="/recharge/electricity" element={<ElectricityBillPage />} />
+            <Route path="/recharge/water" element={<WaterBillPage />} />
+            <Route path="/recharge/gas" element={<GasBillPage />} />
+            <Route path="/recharge/broadband" element={<BroadbandPage />} />
+            <Route path="/recharge/fastag" element={<FastagRechargePage />} />
+            <Route path="/recharge/lpg" element={<LpgBookingPage />} />
+            <Route path="/recharge/insurance" element={<InsurancePaymentPage />} />
+            <Route path="/recharge/education-fees" element={<EducationFeesPage />} />
+            <Route path="/recharge/municipal-tax" element={<MunicipalTaxPage />} />
 
-            {/* Protected Routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/kyc"
-              element={
-                <ProtectedRoute>
-                  <Kyc />
-                </ProtectedRoute>
-              }
-            />
+            {/* Money & Banking Routes */}
+            <Route path="/aeps" element={<AepsPage />} />
+            <Route path="/micro-atm" element={<MicroAtmPage />} />
+            <Route path="/dmt" element={<DmtPage />} />
+            <Route path="/upi-collect" element={<UpiCollectPage />} />
+            <Route path="/wallet-to-bank" element={<WalletToBankPage />} />
+            {/* Verification routes can be added here once pages are created */}
 
-            {/* Role-Based Protected Routes */}
-            <Route
-              path="/admin/*"
-              element={
-                <AdminRoute>
-                  <AdminDashboard />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/employee/*"
-              element={
-                <EmployeeRoute>
-                  <EmployeeDashboard />
-                </EmployeeRoute>
-              }
-            />
+            {/* Travel Booking Routes */}
+            <Route path="/flight" element={<FlightBookingPage />} />
+            <Route path="/train" element={<TrainBookingPage />} />
+            <Route path="/bus" element={<BusBookingPage />} />
+            <Route path="/hotel" element={<HotelBookingPage />} />
+            <Route path="/cab" element={<CabBookingPage />} />
+
+          {/* B2B Routes */}
+          <Route path="/login/partner" element={<PartnerLoginPage />} />
+          <Route path="/login/distributor" element={<DistributorLoginPage />} />
+          <Route path="/login/retailer" element={<RetailerLoginPage />} />
+          <Route path="/b2b/commission" element={<CommissionPage />} />
+          <Route path="/b2b/api-docs" element={<ApiDocsPage />} />
+          <Route path="/b2b/create-distributor" element={<CreateDistributorPage />} />
+          <Route path="/b2b/create-retailer" element={<CreateRetailerPage />} />
+
+            {/* Support Routes */}
+            <Route path="/support/help-center" element={<HelpCenterPage />} />
+            <Route path="/support/complaints" element={<ComplaintsPage />} />
+            <Route path="/support/raise-ticket" element={<RaiseTicketPage />} />
+            <Route path="/support/api" element={<ApiSupportPage />} />
+            <Route path="admin/dashboard" element={<AdminDashboard />} />
+            {/* The /contact route is already defined in Core Routes */}
+
+            {/* User-specific Routes */}
+            {/* <Route path="/dashboard" element={<UserDashboard />} /> */}
+            {/* <Route path="/admin" element={<AdminDashboard />} /> */}
+            {/* <Route path="/profile" element={<Profile />} /> */}
+
+            {/* Fallback Route for 404 Not Found */}
+            {/* <Route path="*" element={<NotFoundPage />} /> */}
           </Routes>
-        </Suspense>
-      </div>
-
-      {/* Footer */}
-      {!isDashboardPage && <Footer />}
-    </>
+        </main>
+        <Footer />
+    </AuthProvider>
   );
 };
 

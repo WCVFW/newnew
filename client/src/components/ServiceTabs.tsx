@@ -8,7 +8,7 @@ const serviceItems = [
   { name: "Landline", icon: "landphone.svg", link: "/landline" },
   { name: "Cable TV", icon: "tv.svg", link: "/cabletv" },
   { name: "Electricity", icon: "eletricity.svg", link: "/electricity" },
-  { name: "Gas", icon: "gas.svg", link: "/gas" },
+  { name: "Gas", icon: "gas.svg", link: "recharge/gas" },
   { name: "Water", icon: "water.svg", link: "/water" },
 ];
 

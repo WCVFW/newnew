@@ -1,125 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-// Import the background image
-import heroBgImage from './image/home-top.jpeg';
-import homebottom from './image/home-bottom.jpeg';
-
-// --- Helper Component for Inline Styles ---
-const HomeStyles = () => (
-  <style>
-    {`
-      /* --- Parallax Background Effect --- */
-      .parallax-section {
-        background-position: center;
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed; /* This creates the parallax effect */
-        min-height: 50vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-      }
-
-      .hero-section {
-        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${heroBgImage});
-        min-height: 80vh;
-      }
-
-      .parallax-divider {
-        background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${homebottom});
-      }
-      
-      .app-showcase-section {
-        background-color: #f8f9fa;
-      }
-
-      /* --- Animation for elements fading in --- */
-      .animate-on-scroll {
-        opacity: 0;
-        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-      }
-
-      .fade-in-up {
-        transform: translateY(50px);
-      }
-      .fade-in-left {
-        transform: translateX(-50px);
-      }
-      .fade-in-right {
-        transform: translateX(50px);
-      }
-
-      .is-visible {
-        opacity: 1;
-        transform: translate(0, 0);
-      }
-      
-      /* Initial hero animation */
-      @keyframes heroFadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0px);
-        }
-      }
-      
-      .hero-content h1, .hero-content p, .hero-content .cmn__btn {
-        animation: heroFadeIn 1.5s ease-out forwards;
-      }
-
-      /* --- Feature Card Styling --- */
-      .feature-card {
-        background-color: #ffffff;
-        border-radius: 10px;
-        padding: 2rem;
-        border-left: 5px solid rgb(76, 0, 130);
-        border-bottom: 5px solid rgb(76, 0, 130);
-        transition: transform 0.3s ease;
-        margin-bottom: 1.5rem;
-        height: 100%; /* Make cards in a row have equal height */
-      }
-
-      .feature-card:hover {
-        transform: translateY(-10px);
-      }
-
-      .feature-card .icon {
-        font-size: 3rem;
-        color: rgb(76, 0, 130); /* Dark purple icon color */
-        margin-bottom: 1rem;
-      }
-
-      /* --- How It Works Styling --- */
-      .step-card {
-        padding: 1.5rem;
-      }
-      .step-card .icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        display: inline-flex; /* Use flexbox for centering */
-        align-items: center;
-        justify-content: center;
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        border: 2px solid rgb(76, 0, 130); /* Single line purple border */
-      }
-
-      .step-card .icon img {
-        width: 60%; /* Zoom out the image even more */
-        height: 60%; /* Zoom out the image even more */
-        border-radius: 50%;
-        object-fit: cover;
-      }
-    `}
-  </style>
-);
 
 // --- Custom Hook for Scroll Animations ---
 const useAnimateOnScroll = (options?: IntersectionObserverInit) => {
@@ -149,134 +30,332 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <HomeStyles />
-
-      {/* --- Hero Section with Parallax Background --- */}
-      <section className="parallax-section hero-section">
-        <div className="container text-center hero-content">
-          <h1 className="display-4 fw-bold mb-3">
-            Seamless Payments, Limitless Possibilities
-          </h1>
-          <p className="lead fs-5 mb-4">
-            Your one-stop solution for fast recharges, bill payments, and secure
-            money transfers.
-          </p>
-          <Link to="/recharge" className="cmn__btn btn-lg">
-            <i className="fas fa-bolt me-2"></i>
-            Get Started
-          </Link>
-        </div>
-      </section>
-
-      {/* --- Features Section --- */}
-      <section className="py-5 bg-light px-3" ref={featuresRef}>
-        <div className="container">
-          <div className="text-center mb-5">
-            <h3 className={`fw-bold animate-on-scroll fade-in-up ${featuresVisible ? "is-visible" : ""}`}>
-              Everything You Need, All in One Place
-            </h3>
-            <p className="text-muted">
-              Manage your finances with our comprehensive suite of services.
-            </p>
-          </div>
-          <div className="row text-center">
-            {/* Feature 1: Recharge */} 
-            <div className={`col-lg-4 col-md-6 animate-on-scroll fade-in-up ${featuresVisible ? "is-visible" : ""}`}>
-              <div className="feature-card">
-                <div className="icon">
-                  <i className="fas fa-mobile-alt"></i>
-                </div>
-                <h5 className="fw-bold">Recharge & Bills</h5>
-                <p>Instantly recharge your mobile, DTH, and pay utility bills with just a few clicks.</p>
+<div className="main-banner wow fadeIn" id="top" data-wow-duration="1s" data-wow-delay="0.5s">
+    <div className="container">
+      <div className="row">
+        <div className="col-lg-12">
+          <div className="row">
+            <div className="col-lg-6 align-self-center">
+              <div className="left-content header-text wow fadeInLeft" data-wow-duration="1s" data-wow-delay="1s">
+                <h6>Welcome to Space Dynamic</h6>
+                <h2>We Make <em>Digital Ideas</em> &amp; <span>SEO</span> Marketing</h2>
+                <p>Space Dynamic is a professional looking HTML template using a Bootstrap 5 (beta 2). This CSS template is free for you provided by <a rel="nofollow" href="https://templatemo.com/page/1" target="_parent">TemplateMo</a>.</p>
+                <form id="search" action="#" method="GET"> 
+ <fieldset>
+ <input type="address" name="address" className="email" placeholder="Your website URL..." autoComplete="on" required />
+                  </fieldset>
+                  <fieldset>
+                    <button type="submit" className="main-button">Analyze Site</button>
+                  </fieldset>
+                </form>
               </div>
             </div>
-            {/* Feature 2: Booking */} 
-            <div className={`col-lg-4 col-md-6 animate-on-scroll fade-in-up ${featuresVisible ? "is-visible" : ""}`} style={{ transitionDelay: "0.2s" }}>
-              <div className="feature-card">
-                <div className="icon">
-                  <i className="fas fa-plane-departure"></i>
-                </div>
-                <h5 className="fw-bold">Travel Booking</h5>
-                <p>Book flights, hotels, and trains effortlessly and find the best deals for your next trip.</p>
-              </div>
-            </div>
-            {/* Feature 3: Transfer Money */} 
-            <div className={`col-lg-4 col-md-6 animate-on-scroll fade-in-up ${featuresVisible ? "is-visible" : ""}`} style={{ transitionDelay: "0.4s" }}>
-              <div className="feature-card">
-                <div className="icon">
-                  <i className="fas fa-paper-plane"></i>
-                </div>
-                <h5 className="fw-bold">Transfer Money</h5>
-                <p>Send and receive money securely and instantly to anyone, anywhere.</p>
+            <div className="col-lg-6">
+              <div className="right-image wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.5s">
+                <img src="homeassests/images/banner-right-image.png" alt="team meeting"/>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </div>
+  </div>
 
-      {/* --- How It Works Section --- */}
-      <section className="py-5" ref={howItWorksRef}>
-        <div className="container">
-          <div className="text-center mb-5">
-            <h3 className={`fw-bold animate-on-scroll fade-in-up ${howItWorksVisible ? "is-visible" : ""}`}>
-              Get Started in 3 Easy Steps
-            </h3>
-          </div>
-          <div className="row text-center">
-            {/* Step 1 */} 
-            <div className={`col-md-4 animate-on-scroll fade-in-up ${howItWorksVisible ? "is-visible" : ""}`}>
-              <div className="step-card">
-                <div className="icon">
-                  <img src="./src/pages/icon/account.png" alt="Create Account"/>
-                </div>
-                <h6 className="fw-bold">Create Account</h6>
-                <p className="text-muted">Sign up for free in just a minute.</p>
-              </div>
-            </div>
-            {/* Step 2 */} 
-            <div className={`col-md-4 animate-on-scroll fade-in-up ${howItWorksVisible ? "is-visible" : ""}`} style={{ transitionDelay: "0.2s" }}>
-              <div className="step-card">
-                <div className="icon">
-                  <img src="./src/pages/icon/money.png" alt="Add Money" />
-                </div>
-                <h6 className="fw-bold">Add Money</h6>
-                <p className="text-muted">Add funds to your wallet securely.</p>
-              </div>
-            </div>
-            {/* Step 3 */} 
-            <div className={`col-md-4 animate-on-scroll fade-in-up ${howItWorksVisible ? "is-visible" : ""}`} style={{ transitionDelay: "0.4s" }}>
-              <div className="step-card">
-                <div className="icon">
-                  <img src="./src/pages/icon/transfer.png" alt="Start Transacting" />
-                </div>
-                <h6 className="fw-bold">Start Transacting</h6>
-                <p className="text-muted">You're all set to pay and transfer.</p>
-              </div>
-            </div>
+  <div id="about" className="about-us section">
+    <div className="container">
+      <div className="row">
+        <div className="col-lg-4">
+          <div className="left-image wow fadeIn" data-wow-duration="1s" data-wow-delay="0.2s">
+            <img src="homeassests/images/about-left-image.png" alt="person graphic"/>
           </div>
         </div>
-      </section>
-
-
-      {/* --- Parallax Divider --- */}
-      <section className="parallax-section parallax-divider">
-        <div className="container text-center">
-          <h3 className="display-6 fw-bold" style={{ color: 'white' }}>Trusted by Millions Worldwide</h3>
+        <div className="col-lg-8 align-self-center">
+          <div className="services">
+            <div className="row">
+              <div className="col-lg-6">
+                <div className="item wow fadeIn" data-wow-duration="1s" data-wow-delay="0.5s">
+                  <div className="icon">
+                    <img src="homeassests/images/service-icon-01.png" alt="reporting"/>
+                  </div>
+                  <div className="right-text">
+                    <h4>Data Analysis</h4>
+                    <p>Lorem ipsum dolor sit amet, ctetur aoi adipiscing eliter</p>
+                  </div>
+                </div>
+              </div>
+              <div className="col-lg-6">
+                <div className="item wow fadeIn" data-wow-duration="1s" data-wow-delay="0.7s">
+                  <div className="icon">
+                    <img src="homeassests/images/service-icon-02.png" alt=""/>
+                  </div>
+                  <div className="right-text">
+                    <h4>Data Reporting</h4>
+                    <p>Lorem ipsum dolor sit amet, ctetur aoi adipiscing eliter</p>
+                  </div>
+                </div>
+              </div>
+              <div className="col-lg-6">
+                <div className="item wow fadeIn" data-wow-duration="1s" data-wow-delay="0.9s">
+                  <div className="icon">
+                    <img src="homeassests/images/service-icon-03.png" alt=""/>
+                  </div>
+                  <div className="right-text">
+                    <h4>Web Analytics</h4>
+                    <p>Lorem ipsum dolor sit amet, ctetur aoi adipiscing eliter</p>
+                  </div>
+                </div>
+              </div>
+              <div className="col-lg-6">
+                <div className="item wow fadeIn" data-wow-duration="1s" data-wow-delay="1.1s">
+                  <div className="icon">
+                    <img src="homeassests/images/service-icon-04.png" alt=""/>
+                  </div>
+                  <div className="right-text">
+                    <h4>SEO Suggestions</h4>
+                    <p>Lorem ipsum dolor sit amet, ctetur aoi adipiscing eliter</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
+    </div>
+  </div>
 
-      {/* --- Final Call to Action --- */}
-      <section className="py-5 text-center" ref={ctaRef}>
-        <div className="container">
-          <h3 className={`fw-bold animate-on-scroll fade-in-up ${ctaVisible ? "is-visible" : ""}`}>Ready to Join?</h3>
-          <p className={`lead text-muted mb-4 animate-on-scroll fade-in-up ${ctaVisible ? "is-visible" : ""}`} style={{ transitionDelay: "0.2s" }}>
-            Create an account today and experience the future of digital payments.
-          </p>
-          <Link to="/signup" className={`cmn__btn btn-lg animate-on-scroll fade-in-up ${ctaVisible ? "is-visible" : ""}`} style={{ transitionDelay: "0.4s" }}>
-            Sign Up for Free
-          </Link>
+  <div id="services" className="our-services section">
+    <div className="container">
+      <div className="row">
+        <div className="col-lg-6 align-self-center  wow fadeInLeft" data-wow-duration="1s" data-wow-delay="0.2s">
+          <div className="left-image">
+            <img src="homeassests/images/services-left-image.png" alt=""/>
+          </div>
         </div>
-      </section>
+        <div className="col-lg-6 wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.2s">
+          <div className="section-heading">
+            <h2>Grow your website with our <em>SEO</em> service &amp; <span>Project</span> Ideas</h2>
+            <p>Space Dynamic HTML5 template is free to use for your website projects. However, you are not permitted to redistribute the template ZIP file on any CSS template collection websites. Please contact us for more information. Thank you for your kind cooperation.</p>
+          </div>
+          <div className="row">
+            <div className="col-lg-12">
+              <div className="first-bar progress-skill-bar">
+                <h4>Website Analysis</h4>
+                <span>84%</span>
+                <div className="filled-bar"></div>
+                <div className="full-bar"></div>
+              </div>
+            </div>
+            <div className="col-lg-12">
+              <div className="second-bar progress-skill-bar">
+                <h4>SEO Reports</h4>
+                <span>88%</span>
+                <div className="filled-bar"></div>
+                <div className="full-bar"></div>
+              </div>
+            </div>
+            <div className="col-lg-12">
+              <div className="third-bar progress-skill-bar">
+                <h4>Page Optimizations</h4>
+                <span>94%</span>
+                <div className="filled-bar"></div>
+                <div className="full-bar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="portfolio" className="our-portfolio section">
+    <div className="container">
+      <div className="row">
+        <div className="col-lg-6 offset-lg-3">
+          <div className="section-heading  wow bounceIn" data-wow-duration="1s" data-wow-delay="0.2s">
+            <h2>See What Our Agency <em>Offers</em> &amp; What We <span>Provide</span></h2>
+          </div>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-lg-3 col-sm-6">
+          <a href="#">
+            <div className="item wow bounceInUp" data-wow-duration="1s" data-wow-delay="0.3s">
+              <div className="hidden-content">
+                <h4>SEO Analysis</h4>
+                <p>Lorem ipsum dolor sit ameti ctetur aoi adipiscing eto.</p>
+              </div>
+              <div className="showed-content">
+                <img src="homeassests/images/portfolio-image.png" alt=""/>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div className="col-lg-3 col-sm-6">
+          <a href="#">
+            <div className="item wow bounceInUp" data-wow-duration="1s" data-wow-delay="0.4s">
+              <div className="hidden-content">
+                <h4>Website Reporting</h4>
+                <p>Lorem ipsum dolor sit ameti ctetur aoi adipiscing eto.</p>
+              </div>
+              <div className="showed-content">
+                <img src="homeassests/images/portfolio-image.png" alt=""/>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div className="col-lg-3 col-sm-6">
+          <a href="#">
+            <div className="item wow bounceInUp" data-wow-duration="1s" data-wow-delay="0.5s">
+              <div className="hidden-content">
+                <h4>Performance Tests</h4>
+                <p>Lorem ipsum dolor sit ameti ctetur aoi adipiscing eto.</p>
+              </div>
+              <div className="showed-content">
+                <img src="homeassests/images/portfolio-image.png" alt=""/>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div className="col-lg-3 col-sm-6">
+          <a href="#">
+            <div className="item wow bounceInUp" data-wow-duration="1s" data-wow-delay="0.6s">
+              <div className="hidden-content">
+                <h4>Data Analysis</h4>
+                <p>Lorem ipsum dolor sit ameti ctetur aoi adipiscing eto.</p>
+              </div>
+              <div className="showed-content">
+                <img src="homeassests/images/portfolio-image.png" alt=""/>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="blog" className="our-blog section">
+    <div className="container">
+      <div className="row">
+        <div className="col-lg-6 wow fadeInDown" data-wow-duration="1s" data-wow-delay="0.25s">
+          <div className="section-heading">
+            <h2>Check Out What Is <em>Trending</em> In Our Latest <span>News</span></h2>
+          </div>
+        </div>
+        <div className="col-lg-6 wow fadeInDown" data-wow-duration="1s" data-wow-delay="0.25s">
+          <div className="top-dec">
+            <img src="homeassests/images/blog-dec.png" alt=""/>
+          </div>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-lg-6 wow fadeInUp" data-wow-duration="1s" data-wow-delay="0.25s">
+          <div className="left-image">
+            <a href="#"><img src="homeassests/images/big-blog-thumb.jpg" alt="Workspace Desktop"/></a>
+            <div className="info">
+              <div className="inner-content">
+                <ul>
+                  <li><i className="fa fa-calendar"></i> 24 Mar 2021</li>
+                  <li><i className="fa fa-users"></i> TemplateMo</li>
+                  <li><i className="fa fa-folder"></i> Branding</li>
+                </ul>
+                <a href="#"><h4>SEO Agency &amp; Digital Marketing</h4></a>
+                <p>Lorem ipsum dolor sit amet, consectetur and sed doer ket eismod tempor incididunt ut labore et dolore magna...</p>
+                <div className="main-blue-button">
+                  <a href="#">Discover More</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-lg-6 wow fadeInUp" data-wow-duration="1s" data-wow-delay="0.25s">
+          <div className="right-list">
+            <ul>
+              <li>
+                <div className="left-content align-self-center">
+                  <span><i className="fa fa-calendar"></i> 18 Mar 2021</span>
+                  <a href="#"><h4>New Websites &amp; Backlinks</h4></a>
+                  <p>Lorem ipsum dolor sit amsecteturii and sed doer ket eismod...</p>
+                </div>
+                <div className="right-image">
+                  <a href="#"><img src="homeassests/images/blog-thumb-01.jpg" alt=""/></a>
+                </div>
+              </li>
+              <li>
+                <div className="left-content align-self-center">
+                  <span><i className="fa fa-calendar"></i> 14 Mar 2021</span>
+                  <a href="#"><h4>SEO Analysis &amp; Content Ideas</h4></a>
+                  <p>Lorem ipsum dolor sit amsecteturii and sed doer ket eismod...</p>
+                </div>
+                <div className="right-image">
+                  <a href="#"><img src="homeassests/images/blog-thumb-01.jpg" alt=""/></a>
+                </div>
+              </li>
+              <li>
+                <div className="left-content align-self-center">
+                  <span><i className="fa fa-calendar"></i> 06 Mar 2021</span>
+                  <a href="#"><h4>SEO Tips &amp; Digital Marketing</h4></a>
+                  <p>Lorem ipsum dolor sit amsecteturii and sed doer ket eismod...</p>
+                </div>
+                <div className="right-image">
+                  <a href="#"><img src="homeassests/images/blog-thumb-01.jpg" alt=""/></a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="contact" className="contact-us section">
+    <div className="container">
+      <div className="row">
+        <div className="col-lg-6 align-self-center wow fadeInLeft" data-wow-duration="0.5s" data-wow-delay="0.25s">
+          <div className="section-heading">
+            <h2>Feel Free To Send Us a Message About Your Website Needs</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed doer ket eismod tempor incididunt ut labore et dolores</p>
+            <div className="phone-info">
+              <h4>For any enquiry, Call Us: <span><i className="fa fa-phone"></i> <a href="#">010-020-0340</a></span></h4>
+            </div>
+          </div>
+        </div>
+        <div className="col-lg-6 wow fadeInRight" data-wow-duration="0.5s" data-wow-delay="0.25s">
+          <form id="contact" action="" method="post">
+            <div className="row">
+              <div className="col-lg-6">
+                <fieldset>
+                  <input type="name" name="name" id="name" placeholder="Name" autoComplete="on" required />
+                </fieldset>
+              </div>
+              <div className="col-lg-6">
+                <fieldset>
+                  <input type="surname" name="surname" id="surname" placeholder="Surname" autoComplete="on" required />
+                </fieldset>
+              </div>
+              <div className="col-lg-12">
+                <fieldset>
+                  <input type="text" name="email" id="email" pattern="[^ @]*@[^ @]*" placeholder="Your Email" required />
+                </fieldset>
+              </div>
+              <div className="col-lg-12">
+                <fieldset>
+                  <textarea name="message" className="form-control" id="message" placeholder="Message" required></textarea>  
+                </fieldset>
+              </div>
+              <div className="col-lg-12">
+                <fieldset>
+                  <button type="submit" id="form-submit" className="main-button ">Send Message</button>
+                </fieldset>
+              </div>
+            </div>
+            <div className="contact-dec">
+              <img src="homeassests/images/contact-decoration.png" alt=""/>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
     </>
   );
 };
