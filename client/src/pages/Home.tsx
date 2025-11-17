@@ -30,7 +30,12 @@ const Home: React.FC = () => {
 
   return (
     <>
-<div className="main-banner wow fadeIn" id="top" data-wow-duration="1s" data-wow-delay="0.5s">
+<div 
+  className="main-banner wow fadeIn" 
+  id="top" 
+  data-wow-duration="1s" 
+  data-wow-delay="0.5s"
+  style={{ paddingTop: '100px' }}> {/* Reduced top padding */}
     <div className="container">
       <div className="row">
         <div className="col-lg-12">

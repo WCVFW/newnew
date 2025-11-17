@@ -123,7 +123,7 @@ const Header: React.FC = () => {
   return (
     <header
       className="header-section"
-      style={{ fontFamily: "Poppins, sans-serif" }}
+      style={{ fontFamily: "Poppins, sans-serif",padding:"25px" }}
     >
       <div className="container-fluid">
         <div className="header-wrapper d-flex align-items-center justify-content-between">
@@ -227,15 +227,6 @@ const Header: React.FC = () => {
                     >
                       Dashboard
                     </Link>
-
-                    <Link
-                      to="/profile"
-                      className="dropdown-item py-2 px-3"
-                      onClick={() => setUserMenuOpen(false)}
-                    >
-                      Profile
-                    </Link>
-
                     <button
                       onClick={handleLogout}
                       className="dropdown-item py-2 px-3 text-danger border-0 bg-transparent w-100 text-start"
@@ -283,7 +274,6 @@ const Header: React.FC = () => {
             {mainNavLinks.map((link, index) => (
               <li key={index} className="py-2 border-bottom">
                 <button
-                  className="d-flex justify-content-between align-items-center"
                   onClick={() =>
                     setOpenDropdown(
                       openDropdown === link.label ? null : link.label
