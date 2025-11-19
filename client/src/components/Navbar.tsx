@@ -238,13 +238,18 @@ const Header: React.FC = () => {
 
               </div>
             ) : (
-              <div className="d-none d-lg-flex gap-3">
-                <Link to="/login" className="cmn__btn outline__btn">
-                  Login
-                </Link>
-                <Link to="/signup" className="cmn__btn">
-                  Signup
-                </Link>
+              <div className="d-none d-lg-flex gap-3 align-items-center">
+                <div className="scroll-to-section">
+                  <div className="main-red-button">
+                    <Link to="/login">Login</Link>
+                  </div>
+                </div>
+
+                <div className="scroll-to-section">
+                  <div className="main-red-button">
+                    <Link to="/signup">Signup</Link>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -324,20 +329,16 @@ const Header: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <Link
-                    to="/login"
-                    className="d-block py-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="d-block py-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Signup
-                  </Link>
+                  <div className="main-red-button mb-2">
+                    <Link to="/login" onClick={() => setMenuOpen(false)}>
+                      Login
+                    </Link>
+                  </div>
+                  <div className="main-red-button">
+                    <Link to="/signup" onClick={() => setMenuOpen(false)}>
+                      Signup
+                    </Link>
+                  </div>
                 </>
               )}
             </li>
