@@ -19,8 +19,8 @@ const useAnimateOnScroll = (options?: IntersectionObserverInit) => {
 const PageStyles = () => (
   <style>
     {`
-      .page-header-section {
-        background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+      .page-header-section { /* Changed header background to indigo gradient */
+        background: linear-gradient(to right, indigo 0%, #3f51b5 100%);
         color: white;
         padding: 60px 0;
         text-align: center;
@@ -47,9 +47,9 @@ const PageStyles = () => (
       .accordion-button {
         font-weight: 600;
       }
-      .accordion-button:not(.collapsed) {
-        color: #E15D67;
-        background-color: #fff0f1;
+      .accordion-button:not(.collapsed) { /* Changed accordion active state to indigo */
+        color: indigo;
+        background-color: #e8eaf6;
         box-shadow: none;
       }
       /* Scroll Animation */
@@ -121,7 +121,8 @@ const ElectricityPage: React.FC = () => {
 
               {/* Submit Button */}
               <div className="col-12 text-center mt-4">
-                <button type="submit" className="btn btn-primary cmn__btn btn-lg">
+                <button type="submit" className="btn cmn__btn btn-lg"
+                  style={{backgroundColor: 'indigo', color: 'white'}}> {/* Changed button to indigo */}
                   Fetch Bill
                 </button>
               </div>

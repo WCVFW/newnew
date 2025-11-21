@@ -1,148 +1,97 @@
-# 🚀 Backend Startup Guide
+# 🚀 Starting Calzone Pay Platform
 
-## Quick Start (One Command)
+## Quick Start
 
-The backend, database, and all migrations are set up and started with a **single command**:
+You have **3 options** to start the application:
 
+### Option 1: Using start-all.bat (Recommended for Windows)
 ```bash
-cd server
+start-all.bat
+```
+This will open both servers in separate command windows for easy monitoring.
+
+### Option 2: Using start-all.js
+```bash
 node start-all.js
 ```
+This will start both servers in the same terminal window.
 
-This script automatically:
-1. ✅ Creates MySQL database and tables (if needed)
-2. ✅ Runs all migrations (columns, enums, etc.)
-3. ✅ Creates admin user (if missing)
-4. ✅ Verifies admin user credentials
-5. ✅ **Starts the Express server on port 3000**
-
-## Output
-
-You'll see a summary like this:
+### Option 3: Using npm script
+```bash
+npm run start-all
 ```
-╔════════════════════════════════════════╗
-║  🚀 RECHARGE APP - MASTER STARTUP      ║
-╚════════════════════════════════════════╝
+Same as Option 2, but using npm.
 
-✅ All 7 setup steps completed!
+### Option 4: Manual Start (Separate Terminals)
 
-╔════════════════════════════════════════╗
-║  🎯 STARTING EXPRESS SERVER...        ║
-╚════════════════════════════════════════╝
-
-✅ Server running on http://localhost:3000
+**Terminal 1 - Backend:**
+```bash
+cd server
+npm start
+# or
+node server-enhanced.js
 ```
 
-## What's Included
+**Terminal 2 - Frontend:**
+```bash
+cd client
+npm run dev
+```
 
-### Database Setup (`setup-db.js`)
-- Creates `recharge_db` database
-- Creates `users`, `kyc`, `transactions` tables
+## Access Points
 
-### Migrations (automatic)
-- `migrate-transactions-table.js` → Adds payment columns (plan_amount, commissions, total_amount)
-- `add-razorpay-column.js` → Adds razorpay_order_id
-- `add-razorpay-payment-id.js` → Adds razorpay_payment_id
-- `add-recharge-columns.js` → Adds recharge_status, recharge_response
-
-### Admin User Setup
-- `add-admin-user.js` → Creates admin user if missing
-- `verify-admin-user.js` → Verifies admin is set up correctly
-
-### Server
-- `server.js` → Starts Express server on http://localhost:3000
+Once started, you can access:
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:3000
 
 ## Prerequisites
 
-Before running `start-all.js`, ensure:
-
-### 1. MySQL is Running
-```powershell
-# On Windows, MySQL should be running (XAMPP, Docker, native MySQL service, etc.)
-# Verify with:
-mysql -u root -p -e "SELECT 1"
-```
-
-### 2. Configuration (`server/.env`)
-Create or update `server/.env` with:
-```env
-# Database
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=recharge_db
-
-# API Credentials (for external plan API)
-API_USER_ID=6659
-API_PASSWORD=Prakash@1482
-
-# Razorpay (get from https://dashboard.razorpay.com/settings/api-keys)
-RAZORPAY_KEY_ID=rzp_test_YOUR_KEY
-RAZORPAY_KEY_SECRET=YOUR_SECRET
-
-# External Recharge API (optional, can add later)
-EZYTM_API_TOKEN=your-token-here
-
-# JWT
-JWT_SECRET=your-secret-key-change-in-production
-```
-
-### 3. Node.js Installed
-```bash
-node --version  # Should be v16+
-npm --version
-```
-
-## Example Full Startup
-
-```powershell
-# Open PowerShell and navigate to project
-cd 'c:\Users\praka\Downloads\newnew-main\newnew-main\server'
-
-# Run the master startup script
-node start-all.js
-```
-
-The backend is now ready! Frontend can make API calls to `http://localhost:3000/api/*`
+Before starting, make sure you have:
+1. ✅ Node.js v18+ installed
+2. ✅ MySQL 8.0+ installed and running
+3. ✅ Dependencies installed:
+   ```bash
+   # Install backend dependencies
+   cd server
+   npm install
+   
+   # Install frontend dependencies
+   cd ../client
+   npm install
+   ```
+4. ✅ Database setup completed:
+   ```bash
+   cd server
+   node setup-database.js
+   ```
+5. ✅ Environment variables configured (`.env` file in server directory)
 
 ## Troubleshooting
 
-### "MySQL Connection Failed"
-- Check MySQL service is running
-- Verify `DB_HOST`, `DB_USER`, `DB_PASSWORD` in `.env`
+### Error: Cannot find module
+- Make sure you're in the correct directory
+- Run `npm install` in both `server` and `client` directories
 
-### "Address already in use :::3000"
-- Port 3000 is occupied. Either:
-  - Kill the process: `taskkill /F /IM node.exe`
-  - Or change `PORT` in `.env` and update frontend API URL
+### Error: Database connection failed
+- Check if MySQL is running
+- Verify database credentials in `.env` file
+- Run `node setup-database.js` to create the database
 
-### "Status enum update skipped: Data truncated..."
-- Old transactions have invalid status values
-- Safe to ignore; only affects old test data
-- New transactions will have correct status values
+### Port already in use
+- Backend (3000): Change `PORT` in `.env` file
+- Frontend (5173): Change port in `client/vite.config.js`
 
-## Admin Login (After Startup)
+## Default Admin Credentials
 
-- **Email**: `prakash@hadoglobalservices.com`
-- **Password**: `Prakash@0000`
+After database setup, you can login with:
+- **Email**: admin@calzonepay.com
+- **Password**: admin123
 
-Go to: `http://localhost:5173/login` (frontend) and login to access admin dashboard.
+⚠️ **Important**: Change these credentials immediately after first login!
 
-## Next Steps
+## Need Help?
 
-1. **Frontend**: Start React dev server
-   ```bash
-   cd client
-   npm install  # if needed
-   npm run dev
-   ```
-
-2. **Test Payment**: Go to http://localhost:5173/recharge and test payment flow
-
-3. **Configure Razorpay**: Add your test keys from https://dashboard.razorpay.com/settings/api-keys
-
-4. **Configure Operator API**: Add your EZYTM token for actual recharge calls
-
----
-
-**That's it!** One command runs everything. 🚀
+Check the documentation:
+- [LAUNCH_GUIDE.md](../LAUNCH_GUIDE.md) - Complete deployment guide
+- [API_TESTING_GUIDE.md](../API_TESTING_GUIDE.md) - API documentation
+- [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md) - Production setup

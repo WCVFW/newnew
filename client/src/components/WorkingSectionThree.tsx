@@ -1,12 +1,26 @@
 import React from "react";
-
+import { FaSimCard } from "react-icons/fa";
+import { MdNetworkCell } from "react-icons/md";
 const WorkingSectionThree: React.FC = () => {
   const logos = [
-    { src: "/assets/images/jio.png", alt: "Jio" },
-    { src: "/assets/images/airtel.png", alt: "Airtel" },
-    { src: "/assets/images/bsnl.png", alt: "BSNL" },
-    { src: "/assets/images/vi.png", alt: "Vi" },
+    {
+      src: "https://upload.wikimedia.org/wikipedia/commons/6/6d/Jio_Logo.png",
+      alt: "Jio",
+    },
+    {
+      src: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Airtel_logo_2010.png",
+      alt: "Airtel",
+    },
+    {
+      src: "https://upload.wikimedia.org/wikipedia/commons/0/05/BSNL_Logo.svg",
+      alt: "BSNL",
+    },
+    {
+      src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Vodafone_Idea_logo.svg/512px-Vodafone_Idea_logo.svg.png",
+      alt: "Vi",
+    },
   ];
+
   const duplicatedLogos = [...logos, ...logos, ...logos]; // Duplicate for a smoother, longer scroll
 
   return (
@@ -57,17 +71,101 @@ const WorkingSectionThree: React.FC = () => {
           }
         `}
       </style>
-
+      {/* --- Logo Scroller Section --- */}
+      <section className="logo-scroller">
+        <div className="logo-scroller-inner">
+          {duplicatedLogos.map((logo, index) => (
+            <img key={index} src={logo.src} alt={logo.alt} />
+          ))}
+        </div>
+      </section>
+      <section className="bgsection">
+        <div className="container">
+          <div className="row gx-5 justify-content-between align-items-center">
+            <div className="col-xl-5 col-lg-5">
+              <div className="refer__thumb">
+                <img src="../assets/img/refer/referthumb.png" alt="thumb" />
+              </div>
+            </div>
+            <div className="col-xl-6 col-lg-6">
+              <div className="refer__content minusten">
+                <div className="section__header wow fadeInDown">
+                  <h2>Refer & Earn</h2>
+                  <p>
+                    Refer your friends and earn up to $20. There are many
+                    variations of passages of Lorem Ipsum available, but the
+                    have suffered alteration in some form, by injected humour,
+                    or randomised words which don't look even slightly
+                    believable. If you are going to use...
+                  </p>
+                </div>
+                <div className="refer__wrap pt__20">
+                  <div
+                    className="refer__item wow fadeInUp"
+                    data-wow-duration="1.2s"
+                  >
+                    <div className="icon">
+                      <img src="../assets/img/refer/boxspeaker.png" alt="img" />
+                    </div>
+                    <div className="content">
+                      <h5>Refer your friends</h5>
+                      <p>
+                        Share your referral link with friends. Thry get &10.
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    className="refer__item wow fadeInUp"
+                    data-wow-duration="1.4s"
+                  >
+                    <div className="icon">
+                      <img src="../assets/img/refer/boxregister.png" alt="img" />
+                    </div>
+                    <div className="content">
+                      <h5>Register yor friends</h5>
+                      <p>
+                        Your friends Register with using your referral link.
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    className="refer__item wow fadeInUp"
+                    data-wow-duration="1.6s"
+                  >
+                    <div className="icon">
+                      <img src="../assets/img/refer/boxamount.png" alt="img" />
+                    </div>
+                    <div className="content">
+                      <h5>Earn You</h5>
+                      <p>$20. You can use these credits to take recharge.</p>
+                    </div>
+                  </div>
+                </div>
+                <a
+                  href="help-support.html"
+                  className="cmn__btn wow fadeInUp"
+                  data-wow-duration="1.8s"
+                >
+                  <span>Get Started Earn</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* <div className="flower__refer">
+          <img src="../assets/img/refer/flowerrefer.png" alt="img" />
+        </div> */}
+      </section>
       <section className="working__section__three pt-120 pb-120">
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-lg-6">
               <div className="section__header section__center pb__40">
-                <h2>How It’s Work</h2>
+                <h2 style={{ color: "indigo" }}>How It Works</h2>
                 <p>
-                  There are many variations of passages of Lorem Ipsum
-                  available, but the majority have suffered alteration in some
-                  form
+                  Getting started with Calzone Pay is quick and easy. Follow
+                  these simple steps to begin managing your payments
+                  effortlessly.
                 </p>
               </div>
             </div>
@@ -82,18 +180,12 @@ const WorkingSectionThree: React.FC = () => {
                       data-wow-duration=".9s"
                     >
                       <span className="list">01</span>
-                      <div className="icon">
-                        <img
-                          src="assets/img/working/chossetouch.png"
-                          alt="img"
-                        />
-                      </div>
+                      <div className="icon"> </div>
                       <div className="content">
-                        <h5>Choose what to do</h5>
+                        <h5>Create Your Account</h5>
                         <p>
-                          There are many variations of passages of Lorem Ipsum
-                          available, but the majority have suffered alteration
-                          in some form, by injected humour
+                          Sign up for a free Calzone Pay account in just a few
+                          minutes. All you need is your mobile number.
                         </p>
                       </div>
                     </div>
@@ -104,15 +196,13 @@ const WorkingSectionThree: React.FC = () => {
                       data-wow-duration="1.2s"
                     >
                       <span className="list">03</span>
-                      <div className="icon">
-                        <img src="assets/img/working/find.png" alt="img" />
-                      </div>
+                      <div className="icon"></div>
                       <div className="content">
-                        <h5>Find what you want</h5>
+                        <h5>Start Transacting</h5>
                         <p>
-                          There are many variations of passages of Lorem Ipsum
-                          available, but the majority have suffered alteration
-                          in some form, by injected humour
+                          You're all set! Start recharging, paying bills, or
+                          sending money instantly with our user-friendly
+                          interface.
                         </p>
                       </div>
                     </div>
@@ -129,15 +219,12 @@ const WorkingSectionThree: React.FC = () => {
                 data-wow-duration="1.8s"
               >
                 <span className="list">03</span>
-                <div className="icon">
-                  <img src="assets/img/working/code.png" alt="img" />
-                </div>
+                <div className="icon"></div>
                 <div className="content">
-                  <h5>Explore amazing code</h5>
+                  <h5>Add Money to Wallet</h5>
                   <p>
-                    There are many variations of passages of Lorem Ipsum
-                    available, but the majority have suffered alteration in some
-                    form, by injected humour
+                    Securely add funds to your wallet using UPI, credit/debit
+                    cards, or net banking for faster checkouts.
                   </p>
                 </div>
               </div>
@@ -145,249 +232,94 @@ const WorkingSectionThree: React.FC = () => {
           </div>
         </div>
         <div className="working__3shape">
-          <img src="assets/img/working/working3shape.png" alt="img" />
+          <img src="../assets/img/working/working3shape.png" alt="img" />
         </div>
       </section>
 
-      {/* --- Logo Scroller Section --- */}
-      <section className="logo-scroller">
-        <div className="logo-scroller-inner">
-          {duplicatedLogos.map((logo, index) => (
-            <img key={index} src={logo.src} alt={logo.alt} />
-          ))}
-        </div>
-      </section>
-
-      <section className="refer__section py-5">
-        <div className="container">
-          <div className="row align-items-center justify-content-between">
-            {/* Left Content */}
-            <div className="col-lg-5 mb-4 mb-lg-0">
-              <div className="section__header">
-                <h2 className="h2 mb-3">Refer & Earn Rewards</h2>
-                <p className="text-muted mb-4">
-                  Invite your friends to join our platform and earn rewards for
-                  every successful referral. It's an easy way to benefit both
-                  you and your friends.
-                </p>
-                <a href="#refer" className="btn btn-primary">
-                  Start Earning
-                </a>
-              </div>
+   <section className="bgsection pt-120 pb-120">
+      <div className="container">
+         <div className="row flex-row-reverse  justify-content-between align-items-center">
+            <div className="col-xl-6 col-lg-6">
+               <div className="qustion__content relative">
+                  <div className="section__header pb__40 wow fadeInDown">
+                     <h2>
+                        If you got questions we have answer
+                     </h2>
+                     <p>
+                        There are many variations of passages of Lorem Ipsum available, but the have suffered alteration
+                        in some form, by injected humour, or randomised words which don't look even slightly believable.
+                        If you are going to use... have suffered alteration in some form, by injected humour, or
+                        randomised words which don't look even slightly believable. If you are going to use...
+                     </p>
+                  </div>
+                  <div className="accordion__wrap">
+                     <div className="accordion" id="accordionExample">
+                        <div className="accordion-item wow fadeInUp" data-wow-duration="0.9s">
+                           <h2 className="accordion-header" id="headingOne">
+                              <button className="accordion-button" type="button" data-bs-toggle="collapse"
+                                 data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                 What is e recharge?
+                              </button>
+                           </h2>
+                           <div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne"
+                              data-bs-parent="#accordionExample">
+                              <div className="accordion-body">
+                                 <p>
+                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
+                                    Ipsum has been the industry's standard dummy text ever since the 1500s, when
+                                 </p>
+                              </div>
+                           </div>
+                        </div>
+                        <div className="accordion-item wow fadeInUp" data-wow-duration="1.2s">
+                           <h2 className="accordion-header" id="headingTwo">
+                              <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                 data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                 What is recharge credit?
+                              </button>
+                           </h2>
+                           <div id="collapseTwo" className="accordion-collapse collapse" aria-labelledby="headingTwo"
+                              data-bs-parent="#accordionExample">
+                              <div className="accordion-body">
+                                 <p>
+                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
+                                    Ipsum has been the industry's standard dummy text ever since the 1500s, when
+                                 </p>
+                              </div>
+                           </div>
+                        </div>
+                        <div className="accordion-item wow fadeInUp" data-wow-duration="1.4s">
+                           <h2 className="accordion-header" id="headingThree">
+                              <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                 data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                 How reliable is recharge com?
+                              </button>
+                           </h2>
+                           <div id="collapseThree" className="accordion-collapse collapse" aria-labelledby="headingThree"
+                              data-bs-parent="#accordionExample">
+                              <div className="accordion-body">
+                                 <p>
+                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
+                                    Ipsum has been the industry's standard dummy text ever since the 1500s, when
+                                 </p>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </div>
-
-            {/* Right Steps */}
-            <div className="col-lg-6">
-              <div className="d-flex flex-column gap-3">
-                {/* Step 1 */}
-                <div className="d-flex align-items-start p-3 bg-white rounded shadow-sm">
-                  <div className="icon flex-shrink-0 me-3">
-                    <img
-                      src="assets/img/refer/boxspeaker.png"
-                      alt="Refer friends"
-                      width="48"
-                    />
-                  </div>
-                  <div>
-                    <h5 className="mb-1">1. Refer Your Friends</h5>
-                    <p className="mb-0 text-muted small">
-                      Share your unique referral link with friends via social
-                      media or email.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Step 2 */}
-                <div className="d-flex align-items-start p-3 bg-white rounded shadow-sm">
-                  <div className="icon flex-shrink-0 me-3">
-                    <img
-                      src="assets/img/refer/boxregister.png"
-                      alt="Friends register"
-                      width="48"
-                    />
-                  </div>
-                  <div>
-                    <h5 className="mb-1">2. They Register</h5>
-                    <p className="mb-0 text-muted small">
-                      Your friends sign up and complete their first transaction
-                      using your link.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Step 3 */}
-                <div className="d-flex align-items-start p-3 bg-white rounded shadow-sm">
-                  <div className="icon flex-shrink-0 me-3">
-                    <img
-                      src="assets/img/refer/earndollar.png"
-                      alt="Earn rewards"
-                      width="48"
-                    />
-                  </div>
-                  <div>
-                    <h5 className="mb-1">3. You Both Earn</h5>
-                    <p className="mb-0 text-muted small">
-                      Once they complete the process, you both receive rewards
-                      in your accounts.
-                    </p>
-                  </div>
-                </div>
-              </div>
+            <div className="col-xl-5 col-lg-5 wow fadeInDown" data-wow-duration="0.9">
+               <div className="qustion__thumb">
+                  <img src="../assets/img/refer/qustion.png" alt=""/>
+               </div>
             </div>
-          </div>
-        </div>
-      </section>
-      <section className="refer__section__three py-5 position-relative">
-        <div className="container">
-          <div className="row justify-content-between align-items-center">
-            {/* Left Content */}
-            <div className="col-lg-6 mb-4 mb-lg-0">
-              <div className="section__header">
-                <h2>Enjoy our Special Supports</h2>
-                <p className="pb-4 text-muted">
-                  There are many variations of passages of Lorem Ipsum
-                  available, but the have suffered alteration in some form, by
-                  injected humour, or randomized words which don't look even
-                  slightly believable. If you are going to use...
-                </p>
-                <a href="#contact" className="btn btn-primary">
-                  Contact us
-                </a>
-              </div>
-            </div>
-
-            {/* Right Content */}
-            <div className="col-lg-6">
-              <div className="refer__boxes__wrap">
-                <div className="row g-4 align-items-center">
-                  {/* Left Column of Boxes */}
-                  <div className="col-lg-6 col-md-6">
-                    <div className="d-flex flex-column gap-3">
-                      {/* Box 1 */}
-                      <div className="refer__item d-flex p-3 bg-white rounded shadow-sm">
-                        <div className="icon me-3 flex-shrink-0">
-                          <img
-                            src="assets/img/working/mobilepro.png"
-                            alt="Secure Payment"
-                            width={48}
-                          />
-                        </div>
-                        <div className="content">
-                          <h5>
-                            <a
-                              href="order.html"
-                              className="text-decoration-none text-dark"
-                            >
-                              Secure Payment
-                            </a>
-                          </h5>
-                          <p className="mb-0 text-muted small">
-                            There are many variations of passages of Lorem...
-                          </p>
-                        </div>
-                      </div>
-                      {/* Box 2 */}
-                      <div className="refer__item d-flex p-3 bg-white rounded shadow-sm">
-                        <div className="icon me-3 flex-shrink-0">
-                          <img
-                            src="assets/img/working/walletpro.png"
-                            alt="Trust Pay"
-                            width={48}
-                          />
-                        </div>
-                        <div className="content">
-                          <h5>
-                            <a
-                              href="order.html"
-                              className="text-decoration-none text-dark"
-                            >
-                              Trust Pay
-                            </a>
-                          </h5>
-                          <p className="mb-0 text-muted small">
-                            There are many variations of passages of Lorem...
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column of Boxes */}
-                  <div className="col-lg-6 col-md-6">
-                    <div className="d-flex flex-column gap-3">
-                      {/* Box 3 */}
-                      <div className="refer__item d-flex p-3 bg-white rounded shadow-sm">
-                        <div className="icon me-3 flex-shrink-0">
-                          <img
-                            src="assets/img/working/soundpro.png"
-                            alt="Refer Payment"
-                            width={48}
-                          />
-                        </div>
-                        <div className="content">
-                          <h5>
-                            <a
-                              href="order.html"
-                              className="text-decoration-none text-dark"
-                            >
-                              Refer Payment
-                            </a>
-                          </h5>
-                          <p className="mb-0 text-muted small">
-                            There are many variations of passages of Lorem...
-                          </p>
-                        </div>
-                      </div>
-                      {/* Box 4 */}
-                      <div className="refer__item d-flex p-3 bg-white rounded shadow-sm">
-                        <div className="icon me-3 flex-shrink-0">
-                          <img
-                            src="assets/img/working/supportpro.png"
-                            alt="27x7 Support"
-                            width={48}
-                          />
-                        </div>
-                        <div className="content">
-                          <h5>
-                            <a
-                              href="order.html"
-                              className="text-decoration-none text-dark"
-                            >
-                              27x7 Support
-                            </a>
-                          </h5>
-                          <p className="mb-0 text-muted small">
-                            There are many variations of passages of Lorem...
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Decorative Dots */}
-                <div className="position-absolute top-0 start-0">
-                  <img src="assets/img/refer/dots.png" alt="dots" />
-                </div>
-                <div className="position-absolute top-50 start-100 translate-middle">
-                  <img src="assets/img/refer/dots.png" alt="dots" />
-                </div>
-                <div className="position-absolute bottom-0 end-0">
-                  <img src="assets/img/refer/dots.png" alt="dots" />
-                </div>
-                <div className="position-absolute bottom-50 start-0 translate-middle">
-                  <img src="assets/img/refer/dots.png" alt="dots" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Decorative Ball */}
-        <div className="position-absolute" style={{ right: 0, bottom: 0 }}>
-          <img src="assets/img/refer/referball.png" alt="decorative ball" />
-        </div>
-      </section>
+         </div>
+      </div>
+      {/* <div className="qustion__shape">
+         <img src="../assets/img/refer/qustion-shape.png" alt="img"/>
+      </div> */}
+   </section>
     </>
   );
 };

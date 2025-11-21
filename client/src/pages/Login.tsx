@@ -61,7 +61,7 @@ export default function Login() {
   };
 
   return (
-    <section className="signup__section bluar__shape py-5">
+    <section className="signup__section bluar__shape py-5 mt-5">
       <div className="container">
         <div className="row align-items-center justify-content-between">
 

@@ -6,6 +6,7 @@ interface User {
   id: number;
   name: string;
   email: string;
+  phone?: string;
   role: string;
   kyc_status: string;
   is_active: boolean;

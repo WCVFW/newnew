@@ -3,12 +3,12 @@ import ServiceTabs from "../../components/ServiceTabs";
 
 const PageStyles = () => (
   <style>{`
-    .page-header-section { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; padding: 60px 0; text-align: center; }
+    .page-header-section { background: linear-gradient(to right, indigo, #3f51b5); color: white; padding: 60px 0; text-align: center; } /* Changed header background to indigo gradient */
     .form-section { background-color: #ffffff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 40px; margin-top: -50px; position: relative; z-index: 2; }
     .faq-section { padding: 80px 0; background-color: #f8f9fa; }
     .accordion-item { border: 1px solid #dee2e6; border-radius: 8px !important; margin-bottom: 1rem; overflow: hidden; }
     .accordion-button { font-weight: 600; }
-    .accordion-button:not(.collapsed) { color: #E15D67; background-color: #fff0f1; box-shadow: none; }
+    .accordion-button:not(.collapsed) { color: indigo; background-color: #e8eaf6; box-shadow: none; } /* Changed accordion active state to indigo */
   `}</style>
 );
 
@@ -49,7 +49,8 @@ const WaterPage: React.FC = () => {
                 <input type="text" className="form-control form-control-lg" id="consumerId" placeholder="Enter your Consumer ID" />
               </div>
               <div className="col-12 text-center mt-4">
-                <button type="submit" className="btn btn-primary cmn__btn btn-lg">Fetch Bill</button>
+                <button type="submit" className="btn cmn__btn btn-lg"
+                  style={{backgroundColor: 'indigo', color: 'white'}}>Fetch Bill</button> {/* Changed button to indigo */}
               </div>
             </div>
           </form>
@@ -88,4 +89,3 @@ const WaterPage: React.FC = () => {
 };
 
 export default WaterPage;
-

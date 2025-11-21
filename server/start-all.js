@@ -1,79 +1,78 @@
-import { spawn } from "child_process";
-import path from "path";
-import { fileURLToPath } from "url";
+const { spawn } = require('child_process');
+const path = require('path');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+console.log('🚀 Starting Calzone Pay Platform...\n');
 
-// Define colors for console output
-const colors = {
-  reset: "\x1b[0m",
-  blue: "\x1b[34m",
-  green: "\x1b[32m",
-  red: "\x1b[31m",
-  yellow: "\x1b[33m",
-};
+// Determine if we're on Windows
+const isWindows = process.platform === 'win32';
 
-/**
- * Executes a shell command and streams its output.
- * @param {string} command The command to execute.
- * @param {string[]} args The arguments for the command.
- * @param {string} cwd The working directory for the command.
- * @param {string} name A friendly name for the process.
- * @param {string} color The color for the process's log output.
- * @returns {Promise<void>} A promise that resolves or rejects when the process exits.
- */
-function runScript(command, args, cwd, name, color) {
-  return new Promise((resolve, reject) => {
-    console.log(`${color}🚀 Starting ${name}...${colors.reset}`);
-    const process = spawn(command, args, { cwd, shell: true });
+// Start Backend Server
+console.log('📦 Starting Backend Server on http://localhost:3000...');
+// Use nodemon to automatically restart the server on file changes.
+// npx is used to ensure nodemon is found, even if not globally installed.
+const nodemonCmd = isWindows ? 'npx.cmd' : 'npx';
+const backendProcess = spawn(nodemonCmd, ['nodemon', 'server-enhanced.js'], {
+    cwd: __dirname,
+    stdio: 'inherit',
+    shell: true
+});
 
-    process.stdout.on("data", (data) => {
-      console.log(`${color}[${name}]${colors.reset} ${data.toString().trim()}`);
-    });
-
-    process.stderr.on("data", (data) => {
-      console.error(`${color}[${name} ERROR]${colors.reset} ${data.toString().trim()}`);
-    });
-
-    process.on("close", (code) => {
-      if (code === 0) {
-        console.log(`${color}✅ ${name} finished successfully.${colors.reset}`);
-        resolve();
-      } else {
-        reject(new Error(`${color}❌ ${name} failed with exit code ${code}.${colors.reset}`));
-      }
-    });
-
-    process.on("error", (err) => {
-      console.error(`${color}Failed to start ${name}: ${err.message}${colors.reset}`);
-      reject(err);
-    });
-  });
-}
-
-async function startAll() {
-  try {
-    // --- Step 1: Run Backend Database Migration ---
-    // This runs first and must complete successfully.
-    await runScript("node", ["add-razorpay-payment-id.js"], __dirname, "Database Migration", colors.yellow);
-
-    console.log("\n--- Starting development servers ---\n");
-
-    // --- Step 2: Run Backend and Frontend Concurrently ---
-    const clientDir = path.resolve(__dirname, "../client");
-
-    // These promises will run in parallel.
-    const backendPromise = runScript("nodemon", ["server.js"], __dirname, "Backend", colors.blue);
-    const frontendPromise = runScript("npm", ["run", "dev"], clientDir, "Frontend", colors.green);
-
-    // Wait for both servers to start (or for one to fail).
-    await Promise.all([backendPromise, frontendPromise]);
-
-  } catch (error) {
-    console.error("\n🔥 A critical step failed. Halting startup.");
+backendProcess.on('error', (error) => {
+    console.error('❌ Backend Server Error:', error);
     process.exit(1);
-  }
-}
+});
 
-startAll();
+backendProcess.on('exit', (code) => {
+    if (code !== 0) {
+        console.log(`\n❌ Backend server exited with code ${code}`);
+    }
+    frontendProcess.kill();
+    process.exit(code);
+});
+
+// Wait a bit for backend to start, then start frontend
+setTimeout(() => {
+    console.log('🎨 Starting Frontend Server on http://localhost:5173...\n');
+    const clientPath = path.join(__dirname, '..', 'client');
+
+    const npmCmd = isWindows ? 'npm.cmd' : 'npm';
+    const frontendProcess = spawn(npmCmd, ['run', 'dev'], {
+        cwd: clientPath,
+        stdio: 'inherit',
+        shell: true
+    });
+
+    frontendProcess.on('error', (error) => {
+        console.error('❌ Frontend Server Error:', error);
+        backendProcess.kill();
+        process.exit(1);
+    });
+
+    frontendProcess.on('exit', (code) => {
+        if (code !== 0) {
+            console.log(`\n❌ Frontend server exited with code ${code}`);
+        }
+        backendProcess.kill();
+        process.exit(code);
+    });
+
+    // Handle graceful shutdown
+    process.on('SIGINT', () => {
+        console.log('\n\n🛑 Shutting down servers...');
+        frontendProcess.kill();
+        backendProcess.kill();
+        process.exit(0);
+    });
+
+    process.on('SIGTERM', () => {
+        console.log('\n\n🛑 Shutting down servers...');
+        frontendProcess.kill();
+        backendProcess.kill();
+        process.exit(0);
+    });
+
+    console.log('\n✅ Both servers are running!');
+    console.log('📍 Backend:  http://localhost:3000');
+    console.log('📍 Frontend: http://localhost:5173');
+    console.log('\n💡 Press Ctrl+C to stop all servers.\n');
+}, 2000);

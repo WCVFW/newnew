@@ -24,7 +24,7 @@ const ServiceTabs: React.FC = () => {
             to={item.link}
             className={`fasilities__item d-flex align-items-center justify-content-center px-1 py-1 border rounded text-nowrap ${
               location.pathname === item.link ? "active" : ""
-            }`}
+            }`} /* Changed active tab background and text to indigo */
             style={{
               textDecoration: "none",
               color: "inherit",
@@ -32,6 +32,10 @@ const ServiceTabs: React.FC = () => {
               fontSize: "10px",
               flex: "1 1 auto",
               maxWidth: "120px",
+              ...(location.pathname === item.link && {
+                backgroundColor: 'indigo',
+                color: 'white',
+              }),
             }}
           >
             <span className="icon me-1" style={{ minWidth: "12px" }}>

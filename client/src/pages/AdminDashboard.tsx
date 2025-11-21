@@ -68,6 +68,23 @@ const AdminDashboard: React.FC = () => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   // --- Data Fetching ---
+  const [stats, setStats] = useState({
+    totalEmployees: 0,
+    totalRevenue: 0,
+    pendingKycCount: 0,
+    totalCommission: 0
+  });
+
+  // --- Data Fetching ---
+  const fetchStats = async () => {
+    try {
+      const response = await api.get("/admin/stats");
+      setStats(response.data);
+    } catch (err) {
+      console.error("Failed to fetch stats:", err);
+    }
+  };
+
   const fetchPendingKycs = async () => {
     try {
       setLoading(true);
@@ -84,14 +101,8 @@ const AdminDashboard: React.FC = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      // This endpoint needs to be created on the backend
-      // const response = await api.get("/admin/transactions");
-      // setTransactions(response.data);
-      // Mock data for now:
-      setTransactions([
-        { id: 1, user_name: 'John Doe', mobile_number: '9876543210', operator: 'Airtel', amount: 199, status: 'SUCCESS', created_at: new Date().toISOString() },
-        { id: 2, user_name: 'Jane Smith', mobile_number: '8765432109', operator: 'Jio', amount: 399, status: 'PENDING', created_at: new Date().toISOString() },
-      ]);
+      const response = await api.get("/admin/transactions");
+      setTransactions(response.data);
     } catch (err) {
       setError("Failed to fetch transactions.");
     } finally {
@@ -100,6 +111,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   useEffect(() => {
+    fetchStats();
     fetchPendingKycs();
     fetchTransactions();
   }, []);
@@ -119,6 +131,7 @@ const AdminDashboard: React.FC = () => {
         await api.post("/admin/kyc-approve", { userId, action });
         Swal.fire("Success!", `User KYC has been ${action.toLowerCase()}.`, "success");
         setPendingKycs(pendingKycs.filter((user) => user.id !== userId));
+        fetchStats(); // Refresh stats after action
       } catch (err) {
         Swal.fire("Error!", "Failed to update KYC status.", "error");
       }
@@ -175,7 +188,7 @@ const AdminDashboard: React.FC = () => {
             </div>
             <div className="user-profile position-relative">
               <FaBell size={20} className="text-muted" />
-              <div style={{cursor: 'pointer'}} onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}>
+              <div style={{ cursor: 'pointer' }} onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}>
                 <span className="fw-semibold">{auth.user?.name || 'Admin'}</span>
                 <FaUserCircle size={32} className="text-primary ms-2" />
               </div>
@@ -200,25 +213,25 @@ const AdminDashboard: React.FC = () => {
                 <div className="col-md-6 col-lg-3">
                   <div className="stat-card d-flex align-items-center">
                     <div className="icon text-primary me-3"><FaUsers /></div>
-                    <div><h5 className="mb-0">25</h5><p className="text-muted mb-0">Total Employees</p></div>
+                    <div><h5 className="mb-0">{stats.totalEmployees}</h5><p className="text-muted mb-0">Total Employees</p></div>
                   </div>
                 </div>
                 <div className="col-md-6 col-lg-3">
                   <div className="stat-card d-flex align-items-center">
                     <div className="icon text-success me-3">₹</div>
-                    <div><h5 className="mb-0">8,450</h5><p className="text-muted mb-0">Total Revenue</p></div>
+                    <div><h5 className="mb-0">{Number(stats.totalRevenue).toLocaleString('en-IN')}</h5><p className="text-muted mb-0">Total Revenue</p></div>
                   </div>
                 </div>
                 <div className="col-md-6 col-lg-3">
                   <div className="stat-card d-flex align-items-center">
                     <div className="icon text-warning me-3"><FaClock /></div>
-                    <div><h5 className="mb-0">{pendingKycs.length}</h5><p className="text-muted mb-0">Pending KYC</p></div>
+                    <div><h5 className="mb-0">{stats.pendingKycCount}</h5><p className="text-muted mb-0">Pending KYC</p></div>
                   </div>
                 </div>
                 <div className="col-md-6 col-lg-3">
                   <div className="stat-card d-flex align-items-center">
                     <div className="icon text-info me-3">₹</div>
-                    <div><h5 className="mb-0">1,230</h5><p className="text-muted mb-0">Total Commissions</p></div>
+                    <div><h5 className="mb-0">{Number(stats.totalCommission).toLocaleString('en-IN')}</h5><p className="text-muted mb-0">Total Commissions</p></div>
                   </div>
                 </div>
               </div>

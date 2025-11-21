@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 
 const Profile: React.FC = () => {
-  const { auth, logout } = useAuth();
+  const { auth, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -32,21 +33,17 @@ const Profile: React.FC = () => {
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('Profile updated successfully!'); // Placeholder for API call
-    // In a real application, you would make an API call here to update the user's profile.
-    // For example:
-    // try {
-    //   const response = await axios.put('/api/user/profile', formData, {
-    //     headers: { Authorization: `Bearer ${auth.token}` }
-    //   });
-    //   updateUser(response.data.user); // Assuming you have an updateUser function in your context
-    //   setMessage('Profile updated successfully!');
-    //   setIsEditing(false);
-    // } catch (error) {
-    //   setMessage('Failed to update profile.');
-    // }
+    try {
+      await api.put('/auth/profile', formData);
+      await refreshUser(); // Refresh user data in context
+      setMessage('Profile updated successfully!');
+      setIsEditing(false);
+    } catch (error: any) {
+      console.error("Update failed:", error);
+      setMessage(error.response?.data?.message || 'Failed to update profile.');
+    }
+
     setTimeout(() => setMessage(''), 3000);
-    setIsEditing(false);
   };
 
   const handleLogout = () => {
@@ -67,7 +64,7 @@ const Profile: React.FC = () => {
               <h2 className="mb-0">My Profile</h2>
             </div>
             <div className="card-body p-4">
-              {message && <div className="alert alert-success">{message}</div>}
+              {message && <div className={`alert ${message.includes('Failed') ? 'alert-danger' : 'alert-success'}`}>{message}</div>}
               <form onSubmit={handleUpdateProfile}>
                 <div className="mb-3">
                   <label htmlFor="name" className="form-label">Full Name</label>
@@ -97,7 +94,7 @@ const Profile: React.FC = () => {
                   <label className="form-label">Role</label>
                   <p className="form-control-plaintext text-capitalize">{auth?.user?.role?.toLowerCase()}</p>
                 </div>
-                
+
                 {isEditing ? (
                   <div className="d-grid gap-2">
                     <button type="submit" className="btn btn-primary">Save Changes</button>

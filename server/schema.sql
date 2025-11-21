@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   employee_commission DECIMAL(10, 2) DEFAULT 0,
   company_commission DECIMAL(10, 2) DEFAULT 0,
   agent_commission DECIMAL(10, 2) DEFAULT 0,
+  api_commission DECIMAL(10, 2) DEFAULT 0,
   total_amount DECIMAL(10, 2),
   status ENUM('PENDING', 'COMPLETED', 'FAILED') DEFAULT 'PENDING',
   recharge_status ENUM('PENDING', 'SUCCESS', 'FAILED') DEFAULT 'PENDING',

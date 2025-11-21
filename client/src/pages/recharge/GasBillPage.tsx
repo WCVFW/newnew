@@ -38,7 +38,7 @@ const GasBillPaymentPage: React.FC = () => {
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="bg-linear-to-r from-pink-500 to-orange-400 text-white py-16 md:py-20"
+        className="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white py-16 md:py-20" /* Changed header background to indigo gradient */
       >
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
           <div className="text-center md:text-left mb-8 md:mb-0">
@@ -79,7 +79,7 @@ const GasBillPaymentPage: React.FC = () => {
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <FaBuilding className="text-gray-400" />
                   </span>
-                  <select 
+                  <select /* Changed focus ring and border to indigo */
                     id="operator" 
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition duration-200"
                   >
@@ -101,7 +101,7 @@ const GasBillPaymentPage: React.FC = () => {
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <FaUserAlt className="text-gray-400" />
                   </span>
-                  <input 
+                  <input /* Changed focus ring and border to indigo */
                     type="text" 
                     id="customerId" 
                     placeholder="Enter your Customer ID" 
@@ -115,8 +115,8 @@ const GasBillPaymentPage: React.FC = () => {
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  type="submit" 
-                  className="w-full md:w-auto bg-pink-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-pink-700 transition duration-300 ease-in-out shadow-lg hover:shadow-pink-300"
+                  type="submit" /* Changed button background, hover, and shadow to indigo */
+                  className="w-full md:w-auto bg-indigo-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-indigo-700 transition duration-300 ease-in-out shadow-lg hover:shadow-indigo-300"
                 >
                   Fetch Bill
                 </motion.button>
@@ -143,7 +143,7 @@ const GasBillPaymentPage: React.FC = () => {
                 {/* Accordion Header */}
                 <h2 className="mb-0">
                   <button
-                    className={`w-full flex justify-between items-center text-left p-5 font-semibold text-lg ${
+                    className={`w-full flex justify-between items-center text-left p-5 font-semibold text-lg ${ /* Changed active FAQ text and icon color to indigo */
                       activeFaq === index ? 'text-pink-600' : 'text-gray-700'
                     } hover:bg-gray-100 focus:outline-none transition-colors duration-300`}
                     onClick={() => setActiveFaq(activeFaq === index ? null : index)}

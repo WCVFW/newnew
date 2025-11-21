@@ -3,12 +3,15 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import Swal from "sweetalert2";
+import { FaWallet } from "react-icons/fa";
 
 const Dashboard: React.FC = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [kycPendingCount, setKycPendingCount] = useState(0);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [totalCommission, setTotalCommission] = useState<number | null>(null);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -24,6 +27,13 @@ const Dashboard: React.FC = () => {
     }
   }, [auth.user?.role]);
 
+  // Fetch wallet balance for user
+  useEffect(() => {
+    if (auth.user && auth.user.role !== "ADMIN") {
+      fetchWalletBalance();
+    }
+  }, [auth.user]);
+
   const fetchKycPendingCount = async () => {
     try {
       setLoading(true);
@@ -33,6 +43,16 @@ const Dashboard: React.FC = () => {
       console.error("Error fetching KYC pending:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchWalletBalance = async () => {
+    try {
+      const response = await api.get("/wallet/balance");
+      setWalletBalance(parseFloat(response.data.balance));
+      setTotalCommission(parseFloat(response.data.total_commission || 0));
+    } catch (error) {
+      console.error("Failed to fetch wallet balance:", error);
     }
   };
 
@@ -156,10 +176,52 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Wallet Balance Card */}
+      <div className="row mb-4">
+        <div className="col-md-12">
+          <div className="card border-0 shadow-sm bg-primary text-white">
+            <div className="card-body p-4">
+              <div className="d-flex align-items-center justify-content-between">
+                <div>
+                  <h6 className="mb-2 text-white-50">Wallet Balance</h6>
+                  <h2 className="mb-0 fw-bold">
+                    ₹ {walletBalance !== null ? walletBalance.toFixed(2) : "0.00"}
+                  </h2>
+                  {walletBalance !== null && (
+                    <small className="text-white-50 mt-1 d-block">
+                      Total Commission Earned: ₹ {totalCommission !== null ? totalCommission.toFixed(2) : "0.00"}
+                    </small>
+                  )}
+                </div>
+                <div className="bg-white bg-opacity-25 p-3 rounded-circle">
+                  <FaWallet size={32} className="text-white" />
+                </div>
+              </div>
+              <div className="mt-3">
+                <button
+                  className="btn btn-light btn-sm fw-semibold text-primary me-2"
+                  onClick={() => navigate("/wallet/add-money")}
+                >
+                  <i className="material-symbols-outlined align-middle me-1" style={{ fontSize: "16px" }}>add</i>
+                  Add Money
+                </button>
+                <button
+                  className="btn btn-outline-light btn-sm fw-semibold"
+                  onClick={() => navigate("/wallet/history")}
+                >
+                  <i className="material-symbols-outlined align-middle me-1" style={{ fontSize: "16px" }}>history</i>
+                  History
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* User Info Card */}
       <div className="row mb-5">
         <div className="col-md-6">
-          <div className="card border-0 shadow-sm">
+          <div className="card border-0 shadow-sm h-100">
             <div className="card-body">
               <h6 className="card-title mb-3">
                 <i className="material-symbols-outlined me-2">account_circle</i>
@@ -181,9 +243,8 @@ const Dashboard: React.FC = () => {
                 <span className="text-muted small">KYC Status:</span>
                 <div>
                   <span
-                    className={`badge ${
-                      auth.user?.is_active ? "bg-success" : "bg-warning"
-                    }`}
+                    className={`badge ${auth.user?.is_active ? "bg-success" : "bg-warning"
+                      }`}
                   >
                     {auth.user?.is_active ? "✅ Approved" : "⏳ Pending"}
                   </span>
@@ -194,7 +255,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="col-md-6">
-          <div className="card border-0 shadow-sm">
+          <div className="card border-0 shadow-sm h-100">
             <div className="card-body">
               <h6 className="card-title mb-3">
                 <i className="material-symbols-outlined me-2">quick_reference</i>

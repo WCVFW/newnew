@@ -42,7 +42,7 @@ Section css
 
 :root {
   --body: #ffffff;
-  --base: #2840BF;
+  --base: #4f46e5;
   --darkbase: #1E0702;
   --text: #3F3F3F;
   --darkextra: #5A5A5A;
@@ -54,7 +54,7 @@ Section css
   --bgsection: #F4F5FC;
   --pragraph-larg: #352C00;
   --socialbg: #EAEDF8;
-  --buttoncolor: #4154B9;
+  --buttoncolor: #4f46e5;
   --pagination: #DFDFDF;
   --success: #008F20;
   --green: #087982;
@@ -13304,3 +13304,224 @@ form .cmn__btn span i {
 
 
 
+/* Prakash Mobile  */
+.recharge-toggle {
+  display: inline-flex;
+  /* background: #f1f1f1; */
+  padding: 6px;
+  border-radius: 50px;
+  gap: 6px;
+}
+
+.recharge-toggle input[type="radio"] {
+  display: none;
+}
+
+.recharge-toggle label {
+  padding: 8px 22px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: #444;
+  transition: 0.3s;
+}
+
+.recharge-toggle input:checked + label {
+  background: #007bff;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+/* CARD */
+.recharge-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 25px 28px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* INPUT FIELD */
+.form-control-lg,
+.form-select-lg {
+  height: 50px !important;
+  font-size: 16px !important;
+  border-radius: 10px !important;
+}
+
+/* BUTTON */
+.recharge-btn {
+  height: 48px;
+  font-size: 15px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Image responsiveness tweak */
+@media (max-width: 991px) {
+  .recharge-image {
+    margin-top: 20px;
+    width: 100%;
+  }
+}
+
+/* ================= Header Layout ================= */
+.header-section {
+  background-color: #ffffff;
+  box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.logo h4 {
+  font-weight: 700;
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+}
+
+/* ================= Desktop Navigation ================= */
+.main-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 25px;
+}
+
+.nav-item-dropdown button {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s;
+  background: none;
+  border: none;
+  padding: 10px 0;
+}
+
+.nav-item-dropdown button:hover, 
+.nav-item-dropdown button[aria-expanded="true"] {
+  color: #007bff; /* Primary Color */
+}
+
+/* Desktop Submenu Animation */
+.sub-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  min-width: 240px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+  z-index: 999;
+  list-style: none;
+  border: 1px solid #f0f0f0;
+  animation: slideUp 0.3s ease forwards;
+}
+
+.sub-menu.show {
+  display: block;
+}
+
+.sub-menu li a {
+  display: block;
+  padding: 10px 20px;
+  color: #555;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.sub-menu li a:hover {
+  background-color: #f8f9fa;
+  color: #007bff;
+  padding-left: 25px; /* Slide effect on hover */
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= Hamburger Icon ================= */
+.header-bar {
+  width: 30px;
+  height: 20px;
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0;
+}
+
+.header-bar span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background-color: #333;
+  border-radius: 3px;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Hamburger Animation when Active */
+.header-bar[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(8.5px) rotate(45deg);
+}
+.header-bar[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+.header-bar[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-8.5px) rotate(-45deg);
+}
+
+/* ================= Mobile Menu ================= */
+.mobile-menu {
+  position: fixed;
+  top: 80px; /* Adjust based on header height */
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.4s ease-in-out;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  z-index: 998;
+}
+
+.mobile-menu.show {
+  height: calc(100vh - 80px); /* Full height minus header */
+  overflow-y: auto; /* Allow scrolling inside menu */
+}
+
+.mobile-menu ul {
+  padding: 20px;
+  list-style: none;
+  margin: 0;
+}
+
+/* Mobile Dropdown Styles */
+.mobile-menu .collapse {
+  display: none;
+  background-color: #f8f9fa;
+  margin: 0 -20px; /* Stretch to edges */
+  padding: 10px 20px;
+}
+
+.mobile-menu .collapse.show {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

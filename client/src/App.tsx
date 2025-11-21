@@ -1,159 +1,153 @@
-import React, { Suspense, useState, useEffect } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import React from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Footer from './components/layout/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
+import EmployeeRoute from './components/EmployeeRoute';
 
-// Layout Components
-import Navbar from "./components/Navbar";
-import Footer from "./components/layout/Footer";
-import Loader from "./components/Loader";
+// Pages
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
+import Kyc from './pages/Kyc';
+import AdminDashboard from './pages/AdminDashboard';
+import EmployeeDashboard from './pages/EmployeeDashboard';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import ErrorPage from './pages/error';
 
-// --- Lazy Load Pages for Code Splitting and Suspense ---
-const Home = React.lazy(() => import("./pages/Home"));
-const Login = React.lazy(() => import("./pages/Login"));
-const Signup = React.lazy(() => import("./pages/Signup"));
-const Contact = React.lazy(() => import("./pages/Contact"));
-const About = React.lazy(() => import("./pages/About"));
-const MobileRechargePage = React.lazy(() => import("./pages/recharge/MobileRechargePage"));
-const DthRechargePage = React.lazy(() => import("./pages/recharge/DthRechargePage"));
-const ElectricityBillPage = React.lazy(() => import("./pages/recharge/ElectricityBillPage"));
-const WaterBillPage = React.lazy(() => import("./pages/recharge/WaterBillPage"));
-const GasBillPage = React.lazy(() => import("./pages/recharge/GasBillPage"));
-const BroadbandPage = React.lazy(() => import("./pages/recharge/BroadbandPage"));
-const FastagRechargePage = React.lazy(() => import("./pages/recharge/FastagRechargePage"));
-const LpgBookingPage = React.lazy(() => import("./pages/recharge/LpgBookingPage"));
-const InsurancePaymentPage = React.lazy(() => import("./pages/recharge/InsurancePaymentPage"));
-const EducationFeesPage = React.lazy(() => import("./pages/recharge/EducationFeesPage"));
-const MunicipalTaxPage = React.lazy(() => import("./pages/recharge/MunicipalTaxPage"));
-const AepsPage = React.lazy(() => import("./pages/money/AepsPage"));
-const MicroAtmPage = React.lazy(() => import("./pages/money/MicroAtmPage"));
-const DmtPage = React.lazy(() => import("./pages/money/DmtPage"));
-const UpiCollectPage = React.lazy(() => import("./pages/money/UpiCollectPage"));
-const WalletToBankPage = React.lazy(() => import("./pages/money/WalletToBankPage"));
-const FlightBookingPage = React.lazy(() => import("./pages/travel/FlightBookingPage"));
-const TrainBookingPage = React.lazy(() => import("./pages/travel/TrainBookingPage"));
-const BusBookingPage = React.lazy(() => import("./pages/travel/BusBookingPage"));
-const HotelBookingPage = React.lazy(() => import("./pages/travel/HotelBookingPage"));
-const CabBookingPage = React.lazy(() => import("./pages/travel/CabBookingPage"));
-const PartnerLoginPage = React.lazy(() => import("./pages/B2B/PartnerLoginPage"));
-const DistributorLoginPage = React.lazy(() => import("./pages/B2B/DistributorLoginPage"));
-const RetailerLoginPage = React.lazy(() => import("./pages/B2B/RetailerLoginPage"));
-const CommissionPage = React.lazy(() => import("./pages/B2B/CommissionPage"));
-const ApiDocsPage = React.lazy(() => import("./pages/B2B/ApiDocsPage"));
-const CreateDistributorPage = React.lazy(() => import("./pages/B2B/CreateDistributorPage"));
-const CreateRetailerPage = React.lazy(() => import("./pages/B2B/CreateRetailerPage"));
-const HelpCenterPage = React.lazy(() => import("./pages/support/HelpCenterPage"));
-const RaiseTicketPage = React.lazy(() => import("./pages/support/RaiseTicketPage"));
-const ApiSupportPage = React.lazy(() => import("./pages/support/ApiSupportPage"));
-const ComplaintsPage = React.lazy(() => import("./pages/support/ComplaintsPage"));
-const AdminDashboard = React.lazy(() => import("./pages/AdminDashboard"));
+// Recharge Pages
+import MobileRechargePage from './pages/recharge/MobileRechargePage';
+import DthRechargePage from './pages/recharge/DthRechargePage';
+import ElectricityBillPage from './pages/recharge/ElectricityBillPage';
+import WaterBillPage from './pages/recharge/WaterBillPage';
+import GasBillPage from './pages/recharge/GasBillPage';
+import BroadbandPage from './pages/recharge/BroadbandPage';
+import LandlinePage from './pages/Landline';
+import FastagRechargePage from './pages/recharge/FastagRechargePage';
+import LpgBookingPage from './pages/recharge/LpgBookingPage';
+import EducationFeesPage from './pages/recharge/EducationFeesPage';
+import InsurancePaymentPage from './pages/recharge/InsurancePaymentPage';
+import MunicipalTaxPage from './pages/recharge/MunicipalTaxPage';
 
-const FullPageLoader = () => (
-  <div style={{
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    width: '100vw',
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    zIndex: 9999,
-  }}>
-    <Loader />
-  </div>
-);
+// Travel Pages
+import FlightBookingPage from './pages/travel/FlightBookingPage';
+import HotelBookingPage from './pages/travel/HotelBookingPage';
+import TrainBookingPage from './pages/travel/TrainBookingPage';
+import BusBookingPage from './pages/travel/BusBookingPage';
+import CabBookingPage from './pages/travel/CabBookingPage';
 
-const App: React.FC = () => {
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const location = useLocation();
-  // We will show the main layout (Navbar, Footer) on all pages except the admin dashboard
-  const showMainLayout = !location.pathname.startsWith('/admin/dashboard');
+// Money Pages
+import UpiCollectPage from './pages/money/UpiCollectPage';
+import AepsPage from './pages/money/AepsPage';
+import DmtPage from './pages/money/DmtPage';
+import MicroAtmPage from './pages/money/MicroAtmPage';
+import WalletToBankPage from './pages/money/WalletToBankPage';
 
-  useEffect(() => {
-    // Enforce a minimum 2-second loading screen on the initial app load.
-    const timer = setTimeout(() => {
-      setIsInitialLoading(false);
-    }, 2000);
+// Partner Pages
+import PartnerDashboard from './pages/partner/PartnerDashboard';
+import PartnerRegister from './pages/partner/PartnerRegister';
 
-    // Cleanup the timer if the component unmounts before the time is up.
-    return () => clearTimeout(timer);
-  }, []); // The empty dependency array ensures this effect runs only once.
+// B2B Pages
+import ApiDocsPage from './pages/B2B/ApiDocsPage';
+import CommissionPage from './pages/B2B/CommissionPage';
+import CreateDistributorPage from './pages/B2B/CreateDistributorPage';
+import CreateRetailerPage from './pages/B2B/CreateRetailerPage';
+import DistributorLoginPage from './pages/B2B/DistributorLoginPage';
+import PartnerLoginPage from './pages/B2B/PartnerLoginPage';
+import RetailerLoginPage from './pages/B2B/RetailerLoginPage';
 
-  if (isInitialLoading) {
-    return <FullPageLoader />;
-  }
+// Support Pages
+import HelpCenterPage from './pages/support/HelpCenterPage';
+import ApiSupportPage from './pages/support/ApiSupportPage';
+import ComplaintsPage from './pages/support/ComplaintsPage';
+import RaiseTicketPage from './pages/support/RaiseTicketPage';
 
-  return (
-    <>
-        {showMainLayout && <Navbar />}
-        <main>
-          <Suspense fallback={<FullPageLoader />}>
+function App() {
+    const location = useLocation();
+    // Do not show Navbar and Footer on dashboard routes
+    const isDashboardRoute = location.pathname === '/dashboard' || location.pathname === '/employee';
+
+    return (
+        <div className="App">
+            {!isDashboardRoute && <Navbar />}
             <Routes>
-              {/* Core Routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/about" element={<About />} />
+                {/* Public Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
 
-              {/* Recharge & Bills Routes */}
-              <Route path="/recharge/mobile" element={<MobileRechargePage />} />
-              <Route path="/recharge/dth" element={<DthRechargePage />} />
-              <Route path="/recharge/electricity" element={<ElectricityBillPage />} />
-              <Route path="/recharge/water" element={<WaterBillPage />} />
-              <Route path="/recharge/gas" element={<GasBillPage />} />
-              <Route path="/recharge/broadband" element={<BroadbandPage />} />
-              <Route path="/recharge/fastag" element={<FastagRechargePage />} />
-              <Route path="/recharge/lpg" element={<LpgBookingPage />} />
-              <Route path="/recharge/insurance" element={<InsurancePaymentPage />} />
-              <Route path="/recharge/education-fees" element={<EducationFeesPage />} />
-              <Route path="/recharge/municipal-tax" element={<MunicipalTaxPage />} />
+                {/* Protected Routes */}
+                <Route path="/dashboard" element={<ProtectedRoute><EmployeeDashboard /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/kyc" element={<ProtectedRoute><Kyc /></ProtectedRoute>} />
 
-              {/* Money & Banking Routes */}
-              <Route path="/aeps" element={<AepsPage />} />
-              <Route path="/micro-atm" element={<MicroAtmPage />} />
-              <Route path="/dmt" element={<DmtPage />} />
-              <Route path="/upi-collect" element={<UpiCollectPage />} />
-              <Route path="/wallet-to-bank" element={<WalletToBankPage />} />
-              {/* Verification routes can be added here once pages are created */}
+                {/* Admin Routes */}
+                <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
 
-              {/* Travel Booking Routes */}
-              <Route path="/flight" element={<FlightBookingPage />} />
-              <Route path="/train" element={<TrainBookingPage />} />
-              <Route path="/bus" element={<BusBookingPage />} />
-              <Route path="/hotel" element={<HotelBookingPage />} />
-              <Route path="/cab" element={<CabBookingPage />} />
+                {/* Employee Routes */}
+                <Route path="/employee" element={<EmployeeRoute><EmployeeDashboard /></EmployeeRoute>} />
 
-            {/* B2B Routes */}
-            <Route path="/login/partner" element={<PartnerLoginPage />} />
-            <Route path="/login/distributor" element={<DistributorLoginPage />} />
-            <Route path="/login/retailer" element={<RetailerLoginPage />} />
-            <Route path="/b2b/commission" element={<CommissionPage />} />
-            <Route path="/b2b/api-docs" element={<ApiDocsPage />} />
-            <Route path="/b2b/create-distributor" element={<CreateDistributorPage />} />
-            <Route path="/b2b/create-retailer" element={<CreateRetailerPage />} />
+                {/* Recharge & Bill Payment Routes */}
+                <Route path="/recharge/mobile" element={<ProtectedRoute><MobileRechargePage /></ProtectedRoute>} />
+                <Route path="/recharge/dth" element={<ProtectedRoute><DthRechargePage /></ProtectedRoute>} />
+                <Route path="/recharge/electricity" element={<ProtectedRoute><ElectricityBillPage /></ProtectedRoute>} />
+                <Route path="/recharge/water" element={<ProtectedRoute><WaterBillPage /></ProtectedRoute>} />
+                <Route path="/recharge/gas" element={<ProtectedRoute><GasBillPage /></ProtectedRoute>} />
+                <Route path="/recharge/broadband" element={<ProtectedRoute><BroadbandPage /></ProtectedRoute>} />
+                <Route path="/recharge/landline" element={<ProtectedRoute><LandlinePage /></ProtectedRoute>} />
+                <Route path="/recharge/fastag" element={<ProtectedRoute><FastagRechargePage /></ProtectedRoute>} />
+                <Route path="/recharge/lpg" element={<ProtectedRoute><LpgBookingPage /></ProtectedRoute>} />
+                <Route path="/recharge/education" element={<ProtectedRoute><EducationFeesPage /></ProtectedRoute>} />
+                <Route path="/recharge/insurance" element={<ProtectedRoute><InsurancePaymentPage /></ProtectedRoute>} />
+                <Route path="/recharge/municipal" element={<ProtectedRoute><MunicipalTaxPage /></ProtectedRoute>} />
 
-              {/* Support Routes */}
-              <Route path="/support/help-center" element={<HelpCenterPage />} />
-              <Route path="/support/complaints" element={<ComplaintsPage />} />
-              <Route path="/support/raise-ticket" element={<RaiseTicketPage />} />
-              <Route path="/support/api" element={<ApiSupportPage />} />
-              <Route path="admin/dashboard" element={<AdminDashboard />} />
-              {/* The /contact route is already defined in Core Routes */}
+                {/* Travel Routes */}
+                <Route path="/travel/flight" element={<ProtectedRoute><FlightBookingPage /></ProtectedRoute>} />
+                <Route path="/travel/hotel" element={<ProtectedRoute><HotelBookingPage /></ProtectedRoute>} />
+                <Route path="/travel/train" element={<ProtectedRoute><TrainBookingPage /></ProtectedRoute>} />
+                <Route path="/travel/bus" element={<ProtectedRoute><BusBookingPage /></ProtectedRoute>} />
+                <Route path="/travel/cab" element={<ProtectedRoute><CabBookingPage /></ProtectedRoute>} />
 
-              {/* User-specific Routes */}
-              {/* <Route path="/dashboard" element={<UserDashboard />} /> */}
-              {/* <Route path="/admin" element={<AdminDashboard />} /> */}
-              {/* <Route path="/profile" element={<Profile />} /> */}
+                {/* Money Routes */}
+                <Route path="/money/upi" element={<ProtectedRoute><UpiCollectPage /></ProtectedRoute>} />
+                <Route path="/money/aeps" element={<ProtectedRoute><AepsPage /></ProtectedRoute>} />
+                <Route path="/money/dmt" element={<ProtectedRoute><DmtPage /></ProtectedRoute>} />
+                <Route path="/money/micro-atm" element={<ProtectedRoute><MicroAtmPage /></ProtectedRoute>} />
+                <Route path="/money/wallet-to-bank" element={<ProtectedRoute><WalletToBankPage /></ProtectedRoute>} />
 
-              {/* Fallback Route for 404 Not Found */}
-              {/* <Route path="*" element={<NotFoundPage />} /> */}
+                {/* Partner Routes */}
+                <Route path="/partner" element={<ProtectedRoute><PartnerDashboard /></ProtectedRoute>} />
+                <Route path="/partner/register" element={<ProtectedRoute><PartnerRegister /></ProtectedRoute>} />
+
+                {/* B2B Routes */}
+                <Route path="/b2b/api-docs" element={<ApiDocsPage />} />
+                <Route path="/b2b/commission" element={<CommissionPage />} />
+                <Route path="/b2b/create-distributor" element={<ProtectedRoute><CreateDistributorPage /></ProtectedRoute>} />
+                <Route path="/b2b/create-retailer" element={<ProtectedRoute><CreateRetailerPage /></ProtectedRoute>} />
+                <Route path="/b2b/distributor-login" element={<DistributorLoginPage />} />
+                <Route path="/b2b/partner-login" element={<PartnerLoginPage />} />
+                <Route path="/b2b/retailer-login" element={<RetailerLoginPage />} />
+
+                {/* Support Routes */}
+                <Route path="/support" element={<HelpCenterPage />} />
+                <Route path="/support/api" element={<ApiSupportPage />} />
+                <Route path="/support/complaints" element={<ComplaintsPage />} />
+                <Route path="/support/tickets" element={<ProtectedRoute><RaiseTicketPage /></ProtectedRoute>} />
+
+                {/* 404 Error Page */}
+                <Route path="*" element={<ErrorPage />} />
             </Routes>
-          </Suspense>
-        </main>
-        {showMainLayout && <Footer />}
-    </>
-  );
-};
+            {!isDashboardRoute && <Footer />}
+        </div>
+    );
+}
 
 export default App;

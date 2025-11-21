@@ -23,15 +23,19 @@ export const protect = async (req, res, next) => {
       const [users] = await conn.execute('SELECT id, name, email, phone, role, kyc_status FROM users WHERE id = ?', [decoded.userId]);
       conn.release();
 
+      // Check if user still exists in the database
+      if (!users[0]) {
+        return res.status(401).json({ message: "Not authorized, user not found" });
+      }
+
       req.user = users[0]; // The full user object
       next();
     } catch (error) {
       console.error("Token verification failed:", error.message);
-      res.status(401).json({ message: "Not authorized, token failed" });
+      return res.status(401).json({ message: "Not authorized, token failed" });
     }
-  }
-
-  if (!token) {
-    res.status(401).json({ message: "Not authorized, no token" });
+  } else {
+    // This handles the case where the header is missing or doesn't start with "Bearer"
+    return res.status(401).json({ message: "Not authorized, no token" });
   }
 };

@@ -1,12 +1,89 @@
-minimal styles
+minimal styles body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: #f8fafc;
+  color: #111827;
+}
 
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
 
-body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#f8fafc; color:#111827; }
-.container { max-width:1100px; margin:0 auto; }
-.input { width:100%; padding:0.6rem; border:1px solid #e5e7eb; border-radius:8px; }
-.btn { padding:0.45rem 0.9rem; border-radius:8px; background:#6f42c1; color:#fff; border:none; cursor:pointer; }
-.btn-outline { padding:0.35rem 0.6rem; border-radius:8px; background:transparent; border:1px solid #6f42c1; color:#6f42c1; cursor:pointer; }
-.btn-sm { padding:0.25rem 0.5rem; font-size:0.85rem; } 
+.input {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+/* Updated Indigo Theme */
+:root {
+  --bs-primary: #4f46e5;
+  /* Indigo 600 */
+  --bs-primary-rgb: 79, 70, 229;
+  --bs-link-color: #4f46e5;
+  --bs-link-hover-color: #4338ca;
+  /* Indigo 700 */
+  --primary-color: #4f46e5;
+  --secondary-color: #4338ca;
+}
+
+.btn {
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  background: var(--bs-primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn:hover {
+  background: var(--secondary-color);
+}
+
+.btn-outline {
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--bs-primary);
+  color: var(--bs-primary);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-outline:hover {
+  background: var(--bs-primary);
+  color: #fff;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* Bootstrap Overrides */
+.btn-primary {
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-color) !important;
+  border-color: var(--secondary-color) !important;
+}
+
+.text-primary {
+  color: var(--bs-primary) !important;
+}
+
+.bg-primary {
+  background-color: var(--bs-primary) !important;
+}
+
+.border-primary {
+  border-color: var(--bs-primary) !important;
+}
 
 /* Your custom styles can go below */
 body {
