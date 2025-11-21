@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/layout/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import { AuthProvider } from './context/AuthContext';
 import EmployeeRoute from './components/EmployeeRoute';
 
 // Pages
@@ -73,7 +74,7 @@ function App() {
     const isDashboardRoute = location.pathname === '/dashboard' || location.pathname === '/employee';
 
     return (
-        <div className="App">
+        <AuthProvider>
             {!isDashboardRoute && <Navbar />}
             <Routes>
                 {/* Public Routes */}
@@ -146,7 +147,7 @@ function App() {
                 <Route path="*" element={<ErrorPage />} />
             </Routes>
             {!isDashboardRoute && <Footer />}
-        </div>
+        </AuthProvider>
     );
 }
 

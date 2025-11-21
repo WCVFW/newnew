@@ -1,5 +1,6 @@
 import React, { useState, useEffect, ReactNode, FormEvent, ChangeEvent } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext"; // Make sure this path is correct
+import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import { format } from "date-fns";
 
@@ -455,67 +456,31 @@ const B2CDashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const { auth, refreshUser } = useAuth();
   const [isAddMoneyModalOpen, setAddMoneyModalOpen] = useState(false);
-  const [addMoneyAmount, setAddMoneyAmount] = useState<number | string>("");
+  const [addMoneyAmount, setAddMoneyAmount] = useState<string>("");
   const [profileData, setProfileData] = useState({ name: '', email: '' });
   const [profileMessage, setProfileMessage] = useState({ type: '', text: '' });
   const [kycData, setKycData] = useState<KycData | null>(null);
+  const navigate = useNavigate();
 
   // This effect synchronizes the profile form with the authenticated user's data
   useEffect(() => {
     if (auth.user) { setProfileData({ name: auth.user.name, email: auth.user.email }); }
   }, [auth.user]);
 
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        // MOCK DATA - Replace with your API call
-        // const { data } = await api.get<DashboardData>("/dashboard/b2c");
-        const mockData: DashboardData = {
-          walletBalance: 5230.5,
-          kycStatus: "VERIFIED",
-          memberId: "CZP12345678",
-          todaysTransactions: 12,
-          monthlySummary: 14500.0,
-          cashbackEarned: 250.75,
-          pendingAlerts: 2,
-          recentTransactions: [
-            {
-              id: 1,
-              operator: "Jio",
-              service: "Mobile Recharge",
-              created_at: new Date().toISOString(),
-              amount: 299,
-              plan_amount: 299,
-              status: "COMPLETED",
-              cashback: 5.0,
-              agent_commission: 5.0,
-            },
-            {
-              id: 2,
-              operator: "BSES Delhi",
-              service: "Electricity Bill",
-              created_at: new Date().toISOString(),
-              amount: 1250,
-              plan_amount: 1250,
-              status: "PENDING",
-              cashback: 0,
-              agent_commission: 0,
-            },
-            {
-              id: 3,
-              operator: "Tata Sky",
-              service: "DTH Recharge",
-              created_at: new Date().toISOString(),
-              amount: 450,
-              plan_amount: 450,
-              status: "FAILED",
-              cashback: 0,
-              agent_commission: 0,
-            },
-          ],
-        };
-        setDashboardData(mockData);
+        const { data } = await api.get<DashboardData>("/dashboard/b2c");
+        setDashboardData(data);
       } catch (err) {
         console.error("Failed to fetch dashboard data:", err);
         setError("Could not load dashboard data. Please try again later.");
@@ -603,33 +568,95 @@ const B2CDashboard = () => {
   };
 
   const quickActions = [
-    { label: "Recharge", icon: <Icons.Mobile /> },
-    { label: "DTH", icon: <Icons.DTH /> },
-    { label: "FASTag", icon: <Icons.Fastag /> },
-    { label: "Bill Payment", icon: <Icons.Bill /> },
-    { label: "Travel", icon: <Icons.Travel /> },
-    { label: "AEPS", icon: <Icons.AEPS /> },
+    { label: "Recharge", icon: <Icons.Mobile />, path: "/recharge/mobile" },
+    { label: "DTH", icon: <Icons.DTH />, path: "/recharge/dth" },
+    { label: "FASTag", icon: <Icons.Fastag />, path: "/recharge/fastag" },
+    { label: "Bill Payment", icon: <Icons.Bill />, path: "/recharge/electricity" },
+    { label: "Travel", icon: <Icons.Travel />, path: "/travel/bus" },
+    { label: "AEPS", icon: <Icons.AEPS />, path: "/money/aeps" },
   ];
+  
+  const openRazorpayForWallet = (orderData: any) => {
+    if (!(window as any).Razorpay) {
+      alert('Razorpay SDK not loaded. Please check your connection and try again.');
+      return;
+    }
+
+    const options = {
+      key: process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_v9bZpQvmrVnUzZ',
+      amount: orderData.amount,
+      currency: orderData.currency,
+      name: 'YourBrand Pay Wallet',
+      description: 'Add Money to Wallet',
+      order_id: orderData.id,
+      handler: async (response: any) => {
+        // Here you would typically have a dedicated endpoint to verify wallet top-ups
+        // and update the user's balance on your server.
+        alert('Payment successful! Your wallet will be updated shortly.');
+        if (refreshUser) refreshUser(); // Refresh user data to get updated balance
+        setAddMoneyModalOpen(false);
+      },
+      prefill: {
+        name: auth.user?.name,
+        email: auth.user?.email,
+      },
+      theme: {
+        color: '#6366f1',
+      },
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
+    
+    rzp.on('payment.failed', function (response: any){
+        alert(response.error.description);
+    });
+  };
 
   const handleAddMoney = async () => {
     if (!addMoneyAmount || +addMoneyAmount <= 0) {
       alert("Please enter a valid amount.");
       return;
     }
+    setLoading(true);
     try {
-      console.log(`Initiating payment for ₹${addMoneyAmount}`);
       // --- API CONNECTION POINT ---
       // 1. Create an order on your backend
-      // const { data } = await api.post('/payment/create-order', { amount: addMoneyAmount });
+      const { data } = await api.post('/payment/create-order', { amount: addMoneyAmount });
       // 2. Open payment gateway (e.g., Razorpay) with order details
-      // openRazorpay(data);
-      alert(
-        `API Call: Proceeding to add ₹${addMoneyAmount}. Replace this with your payment gateway logic.`
-      );
-      setAddMoneyModalOpen(false);
+      if (data.order) {
+        openRazorpayForWallet(data.order);
+      }
     } catch (err) {
       console.error("Failed to create payment order", err);
       alert("Could not initiate payment. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownloadInvoice = async (transactionId: number) => {
+    try {
+      const response = await api.get(`/payment/invoice/${transactionId}`, {
+        responseType: 'blob', // Important: tells axios to expect binary data
+      });
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      
+      // Create a temporary link element to trigger the download
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice-${transactionId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up by removing the link and revoking the URL
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download invoice:', error);
+      alert('Could not download the invoice. Please try again.');
     }
   };
 
@@ -1485,7 +1512,7 @@ const B2CDashboard = () => {
                 <p className="user-name">{auth.user?.name || "User"}</p>
                 <p className="user-role">{auth.user?.role || "User"}</p>
               </div>
-              <button className="icon-button logout-btn">
+              <button className="icon-button logout-btn" onClick={auth.logout}>
                 <Icons.Logout />
               </button>
             </div>
@@ -1567,7 +1594,10 @@ const B2CDashboard = () => {
                 </div>
                 <div className="quick-actions-grid">
                   {quickActions.map((action) => (
-                    <div key={action.label} className="action-card">
+                    <div 
+                      key={action.label} 
+                      className="action-card" 
+                      onClick={() => navigate(action.path)}>
                       <div className="action-icon">{action.icon}</div>
                       <span className="action-label">{action.label}</span>
                     </div>
@@ -1741,6 +1771,7 @@ const B2CDashboard = () => {
                                 <button
                                   className="icon-button"
                                   style={{ width: "36px", height: "36px" }}
+                                  onClick={() => handleDownloadInvoice(tx.id)}
                                 >
                                   <Icons.Download />
                                 </button>
@@ -1896,7 +1927,7 @@ const B2CDashboard = () => {
                                 style={{ textAlign: "right" }}
                               >
                                 ₹{Number(tx.plan_amount).toFixed(2)}
-                              </td>
+                              </td> 
                               <td
                                 className="amount-cell"
                                 style={{ color: "#16a34a" }}
@@ -1914,6 +1945,7 @@ const B2CDashboard = () => {
                                 <button
                                   className="icon-button"
                                   style={{ width: "36px", height: "36px" }}
+                                  onClick={() => handleDownloadInvoice(tx.id)}
                                 >
                                   <Icons.Download />
                                 </button>

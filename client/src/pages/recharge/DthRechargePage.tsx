@@ -210,6 +210,9 @@ const DTHRechargePage: React.FC = () => {
               operator: operatorName,
               plan_amount: planAmount,
               amount: totalAmount, // Add the missing total amount field
+              agent_commission: commissions.agentCommission,
+              company_commission: commissions.companyCommission,
+              api_commission: commissions.apiCommission
             });
 
             if (verifyRes.data?.recharge_call?.ok) {

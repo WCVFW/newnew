@@ -1,23 +1,22 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { api } from '../services/api'; // Assuming this is your configured Axios instance
-import { AxiosError } from 'axios';
+import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
+import { api } from '../services/api';
 
 interface User {
   id: number;
   name: string;
   email: string;
-  phone?: string;
-  role: string;
-  kyc_status: string;
-  is_active: boolean;
+  phone: string;
+  role: 'USER' | 'ADMIN' | 'EMPLOYEE';
+  kyc_status: 'PENDING' | 'APPROVED' | 'REJECTED';
+}
+
+interface AuthState {
+  user: User | null;
+  token: string | null;
 }
 
 interface AuthContextType {
-  auth: {
-    user: User | null;
-    token: string | null;
-    isAuthenticated: boolean;
-  };
+  auth: AuthState;
   login: (token: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -25,81 +24,44 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  const [loading, setLoading] = useState(true);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [auth, setAuth] = useState<AuthState>({
+    user: null,
+    token: localStorage.getItem('token'),
+  });
 
-  // Function to handle logout
   const logout = useCallback(() => {
     localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-    // Crucial: Clear the Authorization header from the Axios instance
-    // This prevents sending stale tokens after logout
-    delete api.defaults.headers.common['Authorization'];
-    console.log('User logged out. Token and user state cleared.');
+    setAuth({ user: null, token: null });
   }, []);
 
-  // Function to refresh user data
   const refreshUser = useCallback(async () => {
-    if (!token) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-
+    if (!auth.token) return;
     try {
-      // Set Authorization header for this request
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      const response = await api.get('/auth/me'); // Corrected path
-      setUser(response.data);
+      const { data } = await api.get('/auth/me');
+      setAuth((prev) => ({ ...prev, user: data }));
     } catch (error) {
-      console.error('refreshUser error:', error);
-      // If refresh fails (e.g., token expired or invalid), log out
-      // Check for 401 or 403 specifically to avoid logging out on other API errors
-      if (error instanceof AxiosError && (error.response?.status === 401 || error.response?.status === 403)) {
-        console.log('Token invalid or expired. Logging out...');
-        logout();
-      }
-    } finally {
-      setLoading(false);
+      console.error("Session invalid, logging out:", error);
+      // This is the crucial part: if fetching the user fails, the token is bad. Log out.
+      logout();
     }
-  }, [token, logout]); // Depend on token and logout
+  }, [auth.token, logout]);
 
-  // Function to handle login
-  const login = useCallback(async (newToken: string) => {
-    localStorage.setItem('token', newToken);
-    setToken(newToken);
-    // Immediately try to refresh user after setting new token
-    // refreshUser will be called by the useEffect below when token changes
-  }, []);
-
-  // Effect to run on component mount and when token changes
-  useEffect(() => {
-    refreshUser();
-  }, [refreshUser]);
-
-  const authContextValue = {
-    auth: {
-      user,
-      token,
-      isAuthenticated: !!user,
-    },
-    login,
-    logout,
-    refreshUser,
+  const login = async (token: string) => {
+    localStorage.setItem('token', token);
+    setAuth({ user: null, token });
+    await refreshUser();
   };
 
-  if (loading) {
-    return <div>Loading authentication...</div>; // Or a proper spinner
-  }
+  useEffect(() => {
+    if (auth.token && !auth.user) {
+      refreshUser();
+    }
+  }, [auth.token, auth.user, refreshUser]);
 
-  return (
-    <AuthContext.Provider value={authContextValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = { auth, login, logout, refreshUser };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

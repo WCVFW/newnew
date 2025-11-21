@@ -5,6 +5,7 @@ const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Razorpay = require('razorpay');
+const PDFDocument = require('pdfkit');
 require('dotenv').config();
 
 // Initialize App
@@ -32,6 +33,21 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
 });
+
+// --- DATABASE HEARTBEAT ---
+// This prevents the database connection from timing out after a period of inactivity.
+// It sends a simple query every 10 minutes to keep the connections in the pool "warm".
+setInterval(async () => {
+  try {
+    const conn = await pool.getConnection();
+    await conn.query('SELECT 1');
+    conn.release();
+    console.log('[DB Heartbeat] Connection kept alive.');
+  } catch (err) {
+    console.error('[DB Heartbeat] Error keeping connection alive:', err.message);
+  }
+}, 10 * 60 * 1000); // Every 10 minutes
+
 
 // --- Razorpay Instance ---
 const razorpay = new Razorpay({
@@ -90,7 +106,12 @@ const authenticateToken = (req, res, next) => {
   if (!token) return res.status(401).json({ message: 'No token provided' });
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: 'Invalid token' });
+    if (err) {
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ message: 'Token expired' });
+      }
+      return res.status(403).json({ message: 'Invalid token' });
+    }
     req.user = user;
     next();
   });
@@ -164,6 +185,7 @@ app.post('/api/auth/login', async (req, res) => {
         userId: user.id,
         email: user.email,
         role: user.role,
+        kyc_status: user.kyc_status,
       },
       JWT_SECRET,
       { expiresIn: '7d' }
@@ -203,6 +225,25 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
   } catch (err) {
     console.error('Auth/me error:', err);
     res.status(500).json({ message: 'Failed to fetch user', error: err.message });
+  }
+});
+
+// ✏️ Update User Profile
+app.put('/api/auth/profile', authenticateToken, async (req, res) => {
+  const { name, email } = req.body;
+  const userId = req.user.userId;
+
+  if (!name || !email) {
+    return res.status(400).json({ message: 'Name and email are required.' });
+  }
+
+  try {
+    const conn = await pool.getConnection();
+    await conn.execute('UPDATE users SET name = ?, email = ? WHERE id = ?', [name, email, userId]);
+    conn.release();
+    res.json({ message: 'Profile updated successfully!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update profile', error: err.message });
   }
 });
 
@@ -318,6 +359,71 @@ app.post('/api/admin/kyc-approve', authenticateToken, async (req, res) => {
   }
 });
 
+// ========== ADMIN ENDPOINTS ==========
+
+// 💼 Manage Employee Wallet (Admin only)
+app.post('/api/admin/wallet/manage', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'ADMIN') {
+    return res.status(403).json({ message: 'Admin access required' });
+  }
+
+  const { employeeId, amount, action, description } = req.body; // action: 'CREDIT' or 'DEBIT'
+  const adminId = req.user.userId;
+
+  if (!employeeId || !amount || !['CREDIT', 'DEBIT'].includes(action)) {
+    return res.status(400).json({ message: 'employeeId, amount, and a valid action (CREDIT/DEBIT) are required.' });
+  }
+
+  if (amount <= 0) {
+    return res.status(400).json({ message: 'Amount must be positive.' });
+  }
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    // 1. Get the current wallet balance of the employee
+    const [[employee]] = await conn.execute('SELECT wallet_balance FROM users WHERE id = ? FOR UPDATE', [employeeId]);
+
+    if (!employee) {
+      await conn.rollback();
+      conn.release();
+      return res.status(404).json({ message: 'Employee not found.' });
+    }
+
+    let newBalance = parseFloat(employee.wallet_balance || 0);
+
+    if (action === 'CREDIT') {
+      newBalance += parseFloat(amount);
+    } else { // DEBIT
+      if (newBalance < amount) {
+        await conn.rollback();
+        conn.release();
+        return res.status(400).json({ message: 'Insufficient wallet balance for debit.' });
+      }
+      newBalance -= parseFloat(amount);
+    }
+
+    // 2. Update the user's wallet balance
+    await conn.execute('UPDATE users SET wallet_balance = ? WHERE id = ?', [newBalance, employeeId]);
+
+    // 3. Log the transaction in the new wallet_transactions table for auditing
+    await conn.execute(
+      'INSERT INTO wallet_transactions (user_id, admin_id, amount, type, description) VALUES (?, ?, ?, ?, ?)',
+      [employeeId, adminId, amount, action, description || `Wallet ${action.toLowerCase()} by admin`]
+    );
+
+    await conn.commit();
+    res.json({ message: `Wallet ${action.toLowerCase()}ed successfully. New balance is ${newBalance.toFixed(2)}.` });
+  } catch (err) {
+    await conn.rollback();
+    console.error('Wallet management error:', err);
+    res.status(500).json({ message: 'Failed to update wallet', error: err.message });
+  } finally {
+    conn.release();
+  }
+});
+
 // ========== PAYMENT ENDPOINTS ==========
 
 // 💳 Create Razorpay Order
@@ -353,21 +459,50 @@ app.post('/api/payment/razorpay-order', authenticateToken, async (req, res) => {
   }
 });
 
+// 💳 Create Razorpay Order for Adding Money to Wallet
+app.post('/api/payment/create-order', authenticateToken, async (req, res) => {
+  const { amount } = req.body;
+
+  if (!amount || amount <= 0) {
+    return res.status(400).json({ message: 'A valid amount is required.' });
+  }
+
+  try {
+    const options = {
+      amount: amount * 100, // amount in paise
+      currency: "INR",
+      receipt: `wallet_add_${req.user.userId}_${Date.now()}`,
+      notes: {
+        type: "wallet_top_up",
+        userId: req.user.userId,
+      }
+    };
+    const order = await razorpay.orders.create(options);
+    res.json({ order });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to create Razorpay order', error: err.message });
+  }
+});
+
 // ✅ Verify Payment & Save Transaction
 app.post('/api/payment/verify', authenticateToken, async (req, res) => {
   const {
     razorpay_payment_id,
     razorpay_order_id,
+    razorpay_signature,
     mobile_number,
     operator,
     operator_code,
-    amount,
-    plan_amount
+    amount, // This is the total amount paid
+    plan_amount, // This is the base recharge amount
+    agent_commission,
+    company_commission,
+    api_commission
   } = req.body;
   const userId = req.user.userId;
 
-  if (!razorpay_payment_id || !mobile_number || !operator || !amount || !operator_code) {
-    return res.status(400).json({ message: 'All payment details required' });
+  if (!razorpay_payment_id || !razorpay_order_id || !mobile_number || !operator || !amount || !operator_code || !plan_amount) {
+    return res.status(400).json({ message: 'Incomplete payment details received from frontend.' });
   }
 
   try {
@@ -397,12 +532,32 @@ app.post('/api/payment/verify', authenticateToken, async (req, res) => {
 
     console.log('Recharge API Response:', rechargeCallResult);
 
-    const transactionStatus = rechargeApiResponse.ok && (rechargeApiBody.status === 'success' || rechargeApiBody.status === 'SUCCESS') ? 'SUCCESS' : 'FAILED';
+    // --- CORRECTED LOGIC ---
+    // The recharge is considered successful if the external API returns a successful HTTP status (2xx).
+    // The previous check for `rechargeApiBody.status` was too strict and causing incorrect "FAILED" statuses.
+    const rechargeStatus = rechargeApiResponse.ok ? 'SUCCESS' : 'FAILED';
 
     const conn = await pool.getConnection();
     await conn.execute(
-      'INSERT INTO transactions (user_id, mobile_number, operator, amount, razorpay_payment_id, status) VALUES (?, ?, ?, ?, ?, ?)',
-      [userId, mobile_number, operator, amount, razorpay_payment_id, transactionStatus]
+      `INSERT INTO transactions 
+        (user_id, mobile_number, operator, total_amount, plan_amount, agent_commission, company_commission, api_commission, razorpay_payment_id, razorpay_order_id, razorpay_signature, status, recharge_status, recharge_response) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        userId,
+        mobile_number,
+        operator,
+        amount, // This is the total_amount
+        plan_amount, // Base plan amount
+        agent_commission || 0,
+        company_commission || 0,
+        api_commission || 0,
+        razorpay_payment_id,
+        razorpay_order_id,
+        razorpay_signature,
+        'COMPLETED', // The payment itself was completed.
+        rechargeStatus, // The status of the final recharge attempt.
+        JSON.stringify(rechargeCallResult.body) // Store the full response from the recharge API.
+      ]
     );
     conn.release();
 
@@ -444,6 +599,117 @@ app.post('/api/payment/calculate-fees', authenticateToken, (req, res) => {
     apiCommission: apiCommission,
     totalAmount: totalAmount,
   });
+});
+
+// 📄 Download Invoice
+app.get('/api/payment/invoice/:transactionId', authenticateToken, async (req, res) => {
+  const { transactionId } = req.params;
+  const userId = req.user.userId;
+
+  try {
+    const conn = await pool.getConnection();
+    // Fetch transaction and user details in one go
+    const [rows] = await conn.execute(
+      `SELECT t.*, u.name as user_name, u.email as user_email 
+       FROM transactions t 
+       JOIN users u ON t.user_id = u.id 
+       WHERE t.id = ? AND t.user_id = ?`,
+      [transactionId, userId]
+    );
+    conn.release();
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Invoice not found or you do not have permission to view it.' });
+    }
+
+    const tx = rows[0];
+
+    const doc = new PDFDocument({ margin: 50 });
+
+    // --- SAFEGUARD ADDED ---
+    // If an error occurs during PDF generation, destroy the doc stream
+    // to prevent the 'write after end' crash.
+    doc.on('error', (err) => {
+      console.error('PDF generation stream error:', err);
+      // Ensure no more writes happen and that we don't send headers twice.
+      if (!res.headersSent) {
+        res.status(500).json({ message: 'Failed to generate PDF stream.' });
+      }
+    });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice-${tx.id}.pdf`);
+
+    // Pipe the PDF document to the response
+    doc.pipe(res);
+
+    // --- PDF Content Generation ---
+    const generateHr = (y) => doc.strokeColor("#aaaaaa").lineWidth(1).moveTo(50, y).lineTo(550, y).stroke();
+
+    // Header Section
+    // --- REMOVED SVG IMAGE TO PREVENT CRASH ---
+    // The pdfkit library was misinterpreting the SVG string as a file path.
+    doc.fontSize(24).font('Helvetica-Bold').text('YourBrand Pay', 50, 57);
+    doc.fontSize(10).font('Helvetica').text('Recharge Receipt', { align: 'right' });
+    doc.moveDown(2);
+    generateHr(doc.y);
+    doc.moveDown(2);
+
+    // Invoice Details Section (Two Columns)
+    const invoiceDetailsTop = doc.y;
+    doc.fontSize(10).font('Helvetica-Bold').text('Invoice No:', 50, invoiceDetailsTop);
+    doc.font('Helvetica').text(`IN${tx.id}`, 150, invoiceDetailsTop);
+
+    doc.font('Helvetica-Bold').text('Order ID:', 300, invoiceDetailsTop);
+    doc.font('Helvetica').text(tx.razorpay_order_id, 400, invoiceDetailsTop);
+
+    doc.font('Helvetica-Bold').text('Date:', 50, invoiceDetailsTop + 15);
+    doc.font('Helvetica').text(new Date(tx.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }), 150, invoiceDetailsTop + 15);
+    
+    doc.font('Helvetica-Bold').text('Payment ID:', 300, invoiceDetailsTop + 15);
+    doc.font('Helvetica').text(tx.razorpay_payment_id, 400, invoiceDetailsTop + 15);
+    doc.moveDown(3);
+    generateHr(doc.y);
+    doc.moveDown(2);
+
+    // Recharge Details Section
+    const addRow = (y, label, value) => {
+      doc.fontSize(11).font('Helvetica-Bold').text(label, 50, y);
+      doc.font('Helvetica').text(value, 200, y);
+    };
+
+    const detailsTop = doc.y;
+    addRow(detailsTop, 'Mobile Number:', tx.mobile_number);
+    addRow(detailsTop + 25, 'Operator:', tx.operator);
+    addRow(detailsTop + 50, 'Plan Amount:', `₹${Number(tx.plan_amount).toFixed(2)}`);
+    addRow(detailsTop + 75, 'Amount Paid:', `₹${Number(tx.total_amount).toFixed(2)}`);
+    addRow(detailsTop + 100, 'Payment Mode:', 'Online Payment');
+    doc.moveDown(8);
+
+    // Status Section
+    const statusY = doc.y;
+    doc.fontSize(12).font('Helvetica-Bold').text('Status:', 50, statusY);
+    const statusColor = tx.recharge_status === 'SUCCESS' ? '#22c55e' : '#ef4444';
+    doc.font('Helvetica-Bold').fillColor(statusColor).text(tx.recharge_status, 200, statusY);
+    doc.fillColor('black'); // Reset color
+    doc.moveDown(3);
+
+    // Footer
+    const pageHeight = doc.page.height;
+    generateHr(pageHeight - 100);
+    doc.fontSize(9).font('Helvetica-Oblique').text('This is a computer-generated receipt and does not require a signature.', 50, pageHeight - 90, { align: 'center', width: 500 });
+    doc.fontSize(9).font('Helvetica').text('Thank you for using YourBrand Pay!', 50, pageHeight - 75, { align: 'center', width: 500 });
+
+    // Finalize the PDF and end the stream
+    doc.end();
+
+  } catch (err) {
+    console.error('Invoice generation error:', err);
+    // Ensure we don't try to send a response if headers are already sent
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Failed to generate invoice.', error: err.message });
+    }
+  }
 });
 
 // 📜 Get All Transactions (Paginated)
@@ -493,6 +759,116 @@ app.get('/api/payment/transactions', authenticateToken, async (req, res) => {
   }
 });
 
+// 📊 Get B2C Dashboard Data
+app.get('/api/dashboard/b2c', authenticateToken, async (req, res) => {
+  const userId = req.user.userId;
+  try {
+    const conn = await pool.getConnection();
+
+    // 1. Wallet Balance
+    const [[user]] = await conn.execute('SELECT wallet_balance, kyc_status, member_id FROM users WHERE id = ?', [userId]);
+
+    // 2. Today's Transactions Count
+    const [[todaysTx]] = await conn.execute(
+      "SELECT COUNT(*) as count FROM transactions WHERE user_id = ? AND DATE(created_at) = CURDATE()",
+      [userId]
+    );
+
+    // 3. Monthly Summary (Total amount this month)
+    const [[monthlySum]] = await conn.execute(
+      "SELECT SUM(amount) as total FROM transactions WHERE user_id = ? AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())",
+      [userId]
+    );
+
+    // 4. Total Cashback
+    const [[cashback]] = await conn.execute(
+      "SELECT SUM(agent_commission) as total FROM transactions WHERE user_id = ?",
+      [userId]
+    );
+
+    // 5. Recent Transactions
+    const [recentTransactions] = await conn.execute(
+      "SELECT * FROM transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 5",
+      [userId]
+    );
+
+    conn.release();
+
+    res.json({
+      walletBalance: user.wallet_balance || 0,
+      kycStatus: user.kyc_status || 'NOT_UPLOADED',
+      memberId: user.member_id || `CZP${userId}`,
+      todaysTransactions: todaysTx.count || 0,
+      monthlySummary: monthlySum.total || 0,
+      cashbackEarned: cashback.total || 0,
+      pendingAlerts: 0, // Placeholder
+      recentTransactions: recentTransactions,
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch dashboard data', error: err.message });
+  }
+});
+
+// 📊 Get Employee Dashboard Data
+app.get('/api/dashboard/employee', authenticateToken, async (req, res) => {
+  // Allow both EMPLOYEE and ADMIN to see this dashboard
+  if (!['EMPLOYEE', 'ADMIN'].includes(req.user.role)) {
+    return res.status(403).json({ message: 'Access denied. Employee or Admin role required.' });
+  }
+
+  // If an admin is viewing, they must provide an employeeId. Otherwise, use the logged-in user's ID.
+  const employeeId = (req.user.role === 'ADMIN' && req.query.employeeId) ? req.query.employeeId : req.user.userId;
+
+  try {
+    const conn = await pool.getConnection();
+
+    // 1. Employee Details (Wallet, KYC, etc.)
+    const [[employee]] = await conn.execute(
+      `SELECT u.wallet_balance, u.kyc_status, u.member_id, k.aadhaar, k.pan 
+       FROM users u LEFT JOIN kyc k ON u.id = k.user_id WHERE u.id = ?`, 
+      [employeeId]
+    );
+    if (!employee) {
+      conn.release();
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+
+    // 2. Today's Sales (Count and Amount)
+    const [[todaysSales]] = await conn.execute(
+      "SELECT COUNT(*) as count, SUM(total_amount) as total FROM transactions WHERE user_id = ? AND DATE(created_at) = CURDATE()",
+      [employeeId]
+    );
+
+    // 3. Total Commission Earned
+    const [[commission]] = await conn.execute(
+      "SELECT SUM(agent_commission) as total FROM transactions WHERE user_id = ?",
+      [employeeId]
+    );
+
+    // 4. Recent Transactions
+    const [recentTransactions] = await conn.execute(
+      "SELECT id, mobile_number, operator, total_amount, status, recharge_status, created_at FROM transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 5",
+      [employeeId]
+    );
+
+    conn.release();
+
+    res.json({
+      walletBalance: employee.wallet_balance || 0,
+      kycStatus: employee.kyc_status || 'NOT_UPLOADED',
+      memberId: employee.member_id || `CZP${employeeId}`,
+      aadhaar: employee.aadhaar || null,
+      pan: employee.pan || null,
+      todaysSalesCount: todaysSales.count || 0,
+      todaysSalesTotal: todaysSales.total || 0,
+      totalCommissionEarned: commission.total || 0,
+      recentTransactions: recentTransactions,
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch employee dashboard data', error: err.message });
+  }
+});
 
 // ========== RECHARGE PLANS ENDPOINTS ==========
 
